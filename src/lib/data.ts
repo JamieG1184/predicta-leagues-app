@@ -381,6 +381,144 @@ export async function getAllTeamSlugs(): Promise<{ slug: string; name: string }[
 }
 
 // ---------------------------------------------------------------------------
+// Feedback
+// ---------------------------------------------------------------------------
+
+export type FeedbackEntry = {
+  id: number
+  player_name: string | null
+  category: string | null
+  message: string
+  resolved: boolean
+  submitted_at: string
+}
+
+export async function submitFeedback(args: {
+  player_name?: string | null
+  category?: string | null
+  message: string
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const message = args.message?.trim()
+  if (!message) return { ok: false, error: 'Message is required.' }
+  if (message.length > 2000) return { ok: false, error: 'Message is too long (max 2000 characters).' }
+  const { error } = await supabaseServer.from('feedback').insert({
+    player_name: args.player_name?.trim() || null,
+    category: args.category?.trim() || null,
+    message,
+  })
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+export async function getAllFeedback(): Promise<FeedbackEntry[]> {
+  const { data, error } = await supabaseServer
+    .from('feedback')
+    .select('*')
+    .order('submitted_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as FeedbackEntry[]
+}
+
+export async function setFeedbackResolved(id: number, resolved: boolean) {
+  const { error } = await supabaseServer
+    .from('feedback')
+    .update({ resolved })
+    .eq('id', id)
+  if (error) throw error
+}
+
+// ---------------------------------------------------------------------------
+// Weekly badges
+// ---------------------------------------------------------------------------
+
+export type BadgeType =
+  | 'top_of_league'
+  | 'bottom_of_league'
+  | 'highest_climber'
+  | 'biggest_drop'
+  | 'highest_weekly_score'
+  | 'lowest_weekly_score'
+
+export const BADGE_LABELS: Record<BadgeType, { label: string; emoji: string; tone: 'good' | 'bad' }> = {
+  top_of_league: { label: "Blagger's Right", emoji: '🏆', tone: 'good' },
+  bottom_of_league: { label: 'Wanker of the Week', emoji: '🤡', tone: 'bad' },
+  highest_climber: { label: 'Highest Climber', emoji: '📈', tone: 'good' },
+  biggest_drop: { label: 'Biggest Drop', emoji: '📉', tone: 'bad' },
+  highest_weekly_score: { label: 'Highest Weekly Score', emoji: '🎯', tone: 'good' },
+  lowest_weekly_score: { label: 'Lowest Weekly Score', emoji: '💀', tone: 'bad' },
+}
+
+export type WeeklyBadge = {
+  id: number
+  week_ending: string
+  week_label: string | null
+  badge_type: BadgeType
+  player_id: number
+  player_name: string
+  invite_code: string
+  value: number | null
+  notes: string | null
+}
+
+export async function getPlayerBadges(playerId: number): Promise<WeeklyBadge[]> {
+  const season = await getCurrentSeason()
+  const { data } = await supabaseServer
+    .from('weekly_badges')
+    .select('id, week_ending, week_label, badge_type, value, notes, player_id')
+    .eq('season_id', season.id)
+    .eq('player_id', playerId)
+    .order('week_ending', { ascending: false })
+  if (!data) return []
+  const players = await getAllPlayers()
+  const player = players.find((p) => p.id === playerId)
+  return data.map((b) => ({
+    id: b.id,
+    week_ending: b.week_ending,
+    week_label: b.week_label,
+    badge_type: b.badge_type as BadgeType,
+    player_id: b.player_id,
+    player_name: player?.display_name ?? '?',
+    invite_code: player?.invite_code ?? '',
+    value: b.value,
+    notes: b.notes,
+  }))
+}
+
+export async function getLatestWeekBadges(): Promise<WeeklyBadge[]> {
+  const season = await getCurrentSeason()
+  // Find the most recent week_ending
+  const { data: latest } = await supabaseServer
+    .from('weekly_badges')
+    .select('week_ending')
+    .eq('season_id', season.id)
+    .order('week_ending', { ascending: false })
+    .limit(1)
+  if (!latest || latest.length === 0) return []
+  const weekEnding = latest[0].week_ending
+  const { data } = await supabaseServer
+    .from('weekly_badges')
+    .select('id, week_ending, week_label, badge_type, value, notes, player_id')
+    .eq('season_id', season.id)
+    .eq('week_ending', weekEnding)
+  if (!data) return []
+  const players = await getAllPlayers()
+  return data.map((b) => {
+    const player = players.find((p) => p.id === b.player_id)
+    return {
+      id: b.id,
+      week_ending: b.week_ending,
+      week_label: b.week_label,
+      badge_type: b.badge_type as BadgeType,
+      player_id: b.player_id,
+      player_name: player?.display_name ?? '?',
+      invite_code: player?.invite_code ?? '',
+      value: b.value,
+      notes: b.notes,
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Live in-play fixtures (for homepage and digest "live now" strip)
 // ---------------------------------------------------------------------------
 

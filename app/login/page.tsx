@@ -12,6 +12,13 @@ export default async function SiteLoginPage({
   const { error, redirect } = await searchParams
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4 py-16">
+      <img
+        src="/predicta-logo.svg"
+        alt="Predicta Leagues"
+        width={120}
+        height={120}
+        className="mb-6"
+      />
       <p className="text-xs font-medium uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
         Premier League · 2025/26
       </p>

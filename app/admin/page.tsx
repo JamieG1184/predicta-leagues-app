@@ -10,6 +10,13 @@ export default async function AdminLoginPage({
   const { error, redirect } = await searchParams
   return (
     <main className="mx-auto max-w-sm px-4 py-16">
+      <img
+        src="/predicta-logo.svg"
+        alt=""
+        width={80}
+        height={80}
+        className="mb-4"
+      />
       <p className="text-xs font-medium uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
         Admin · Predicta Leagues
       </p>

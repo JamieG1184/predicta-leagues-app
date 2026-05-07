@@ -15,9 +15,10 @@
     "scores:calculate": "node --env-file=.env.local scripts/calculate-scores.mjs",
     "sportmonks:sync-fixtures": "node --env-file=.env.local scripts/sportmonks-sync-fixtures.mjs",
     "db:check": "node --env-file=.env.local scripts/db-check.mjs",
-    "db:rebuild": "npm run db:seed && npm run sportmonks:map-teams && npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
+    "db:rebuild": "npm run db:seed -- --force && npm run sportmonks:map-teams && npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
     "digest:snapshot": "npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
-    "digest:demo": "node --env-file=.env.local scripts/digest-demo.mjs"
+    "digest:demo": "node --env-file=.env.local scripts/digest-demo.mjs",
+    "badges:award": "node --env-file=.env.local scripts/badges-award.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",

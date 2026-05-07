@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getLeaderboard, getLeagueInsights } from '@/src/lib/data'
 import { LivePoller } from './_components/LivePoller'
 import { LiveFixturesStrip } from './_components/LiveFixturesStrip'
+import { WeeklyBadgesPanel } from './_components/WeeklyBadgesPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,12 +12,23 @@ export default async function LeaderboardPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:py-16">
       <header className="mb-10 border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <p className="text-xs font-medium uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-          Premier League · 2025/26
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Predicta Leagues
-        </h1>
+        <div className="flex items-start gap-4">
+          <img
+            src="/predicta-logo.svg"
+            alt="Predicta Leagues"
+            width={84}
+            height={84}
+            className="shrink-0"
+          />
+          <div>
+            <p className="text-xs font-medium uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+              Premier League · 2025/26
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Predicta Leagues
+            </h1>
+          </div>
+        </div>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           The live leaderboard from your community&apos;s 2025/26 season. Scores
           are recalculated against the actual Premier League table; the final
@@ -29,11 +41,19 @@ export default async function LeaderboardPage() {
           >
             View round analysis →
           </Link>
+          <Link
+            href="/feedback"
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            Send feedback
+          </Link>
           <LivePoller />
         </div>
       </header>
 
       <LiveFixturesStrip />
+
+      <WeeklyBadgesPanel />
 
       <section className="mb-10">
         <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">

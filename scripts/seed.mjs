@@ -55,8 +55,16 @@ async function clearTable(name) {
 }
 
 async function clearExisting() {
-  console.log('Clearing existing data...')
-  // Order matters: drop dependents before parents.
+  // Safety guard: refuse to wipe unless explicitly confirmed.
+  // Pass --force on the command line OR set ALLOW_WIPE=1 in .env.local
+  const allowWipe = process.argv.includes('--force') || process.env.ALLOW_WIPE === '1'
+  if (!allowWipe) {
+    console.log(
+      '\n⚠ Skipping clearExisting() — refusing to wipe data without --force flag.\n  To reseed, run: npm run db:seed -- --force\n'
+    )
+    return
+  }
+  console.log('Clearing existing data (--force flag set)...')
   for (const t of [
     'score_snapshots',
     'actual_standings',

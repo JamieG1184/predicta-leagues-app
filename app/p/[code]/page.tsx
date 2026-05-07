@@ -6,8 +6,11 @@ import {
   getPlayerUpcomingFixtures,
   getPlayerMovement,
   getScenarioData,
+  getPlayerBadges,
+  BADGE_LABELS,
   type PlayerMovement,
   type PreviousFixture,
+  type WeeklyBadge,
 } from '@/src/lib/data'
 import { CompareSelector } from '../../compare/CompareSelector'
 import { TeamBadge } from '../../_components/TeamBadge'
@@ -28,6 +31,7 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
     getScenarioData(code),
   ])
   if (!detail) notFound()
+  const badges = await getPlayerBadges(detail.player.id)
   const allPlayers = board.map((r) => ({
     display_name: r.player.display_name,
     invite_code: r.player.invite_code,
@@ -72,6 +76,8 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
 
       {movement.has_data && <RecentActivity movement={movement} />}
 
+      {badges.length > 0 && <BadgesSection badges={badges} />}
+
       <PlayerTabs
         scored={detail.scored}
         total={detail.total}
@@ -93,6 +99,60 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
         </p>
       </footer>
     </main>
+  )
+}
+
+function BadgesSection({ badges }: { badges: WeeklyBadge[] }) {
+  // Group by week_ending so each row represents one award week
+  const byWeek = new Map<string, WeeklyBadge[]>()
+  for (const b of badges) {
+    if (!byWeek.has(b.week_ending)) byWeek.set(b.week_ending, [])
+    byWeek.get(b.week_ending)!.push(b)
+  }
+  const weeks = [...byWeek.keys()].sort().reverse()
+
+  return (
+    <section className="mb-8">
+      <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
+        <span>Badges this season</span>
+        <span>{badges.length} awarded</span>
+      </div>
+      <div className="space-y-3">
+        {weeks.map((week) => {
+          const weekBadges = byWeek.get(week)!
+          const label = weekBadges[0]?.week_label ?? week
+          return (
+            <div
+              key={week}
+              className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+            >
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                {label}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {weekBadges.map((b) => {
+                  const meta = BADGE_LABELS[b.badge_type]
+                  return (
+                    <span
+                      key={b.id}
+                      title={b.notes ?? undefined}
+                      className={
+                        meta.tone === 'good'
+                          ? 'inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-800 dark:border-emerald-700/40 dark:bg-emerald-500/10 dark:text-emerald-200'
+                          : 'inline-flex items-center gap-1.5 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-800 dark:border-rose-700/40 dark:bg-rose-500/10 dark:text-rose-200'
+                      }
+                    >
+                      <span>{meta.emoji}</span>
+                      <span>{meta.label}</span>
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 

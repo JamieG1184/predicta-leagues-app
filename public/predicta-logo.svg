@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-90 -90 180 180" role="img" aria-label="Predicta Leagues">
+  <circle cx="0" cy="0" r="80" fill="#18181b"/>
+
+  <!-- Perspective net (lines fanning down from crossbar) -->
+  <g opacity="0.3" stroke="#ffffff" stroke-width="0.55" stroke-linecap="round">
+    <line x1="-33" y1="-33" x2="-24" y2="-2"/>
+    <line x1="-24" y1="-33" x2="-17" y2="-2"/>
+    <line x1="-15" y1="-33" x2="-9" y2="-2"/>
+    <line x1="-7" y1="-33" x2="-1" y2="-2"/>
+    <line x1="7" y1="-33" x2="1" y2="-2"/>
+    <line x1="15" y1="-33" x2="9" y2="-2"/>
+    <line x1="24" y1="-33" x2="17" y2="-2"/>
+    <line x1="33" y1="-33" x2="24" y2="-2"/>
+    <line x1="-37" y1="-24" x2="37" y2="-24"/>
+    <line x1="-37" y1="-15" x2="37" y2="-15"/>
+    <line x1="-37" y1="-7" x2="37" y2="-7"/>
+  </g>
+
+  <!-- Goalposts -->
+  <line x1="-40" y1="-33" x2="40" y2="-33" stroke="#ffffff" stroke-width="3.4" stroke-linecap="square"/>
+  <line x1="-37" y1="-33" x2="-37" y2="-2" stroke="#ffffff" stroke-width="3.4" stroke-linecap="square"/>
+  <line x1="37" y1="-33" x2="37" y2="-2" stroke="#ffffff" stroke-width="3.4" stroke-linecap="square"/>
+
+  <!-- Rising chart bars -->
+  <rect x="-15" y="-5" width="8" height="14" fill="#059669"/>
+  <rect x="-4" y="-14" width="8" height="23" fill="#059669"/>
+  <rect x="7" y="-23" width="8" height="32" fill="#059669"/>
+
+  <!-- Wordmark -->
+  <text x="0" y="36" text-anchor="middle"
+    font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif"
+    font-size="14" font-weight="800" fill="#ffffff" letter-spacing="0.06em">PREDICTA</text>
+  <text x="0" y="52" text-anchor="middle"
+    font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif"
+    font-size="8" font-weight="500" fill="#a1a1aa" letter-spacing="0.45em">LEAGUES</text>
+</svg>
