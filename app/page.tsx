@@ -1,65 +1,195 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { getLeaderboard, getLeagueInsights } from '@/src/lib/data'
+import { LivePoller } from './_components/LivePoller'
+import { LiveFixturesStrip } from './_components/LiveFixturesStrip'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function LeaderboardPage() {
+  const [rows, insights] = await Promise.all([getLeaderboard(), getLeagueInsights()])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="mx-auto max-w-3xl px-4 py-10 sm:py-16">
+      <header className="mb-10 border-b border-zinc-200 pb-8 dark:border-zinc-800">
+        <p className="text-xs font-medium uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+          Premier League · 2025/26
+        </p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+          Predicta Leagues
+        </h1>
+        <p className="mt-3 max-w-lg text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          The live leaderboard from your community&apos;s 2025/26 season. Scores
+          are recalculated against the actual Premier League table; the final
+          score after the season&apos;s last fixture decides the winner.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Link
+            href="/digest"
+            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700/50 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            View round analysis →
+          </Link>
+          <LivePoller />
         </div>
-      </main>
+      </header>
+
+      <LiveFixturesStrip />
+
+      <section className="mb-10">
+        <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
+          <span>League insights</span>
+          <span>This season</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <InsightCard
+            label="Best Joker call"
+            primary={
+              insights.highest_joker
+                ? `${insights.highest_joker.player_name}`
+                : '—'
+            }
+            sub={
+              insights.highest_joker
+                ? `${insights.highest_joker.team_name} · ${insights.highest_joker.points} pts`
+                : undefined
+            }
+            accent
+          />
+          <InsightCard
+            label="Most popular title pick"
+            primary={insights.most_popular_title_pick.team_name}
+            sub={
+              insights.most_popular_title_pick.count > 0
+                ? `${insights.most_popular_title_pick.count}/${insights.player_count} players · finishing ${insights.most_popular_title_pick.actual_position ?? '—'}`
+                : undefined
+            }
+          />
+          <InsightCard
+            label="Most popular relegation"
+            primary={insights.most_popular_relegation_pick.team_name}
+            sub={
+              insights.most_popular_relegation_pick.count > 0
+                ? `${insights.most_popular_relegation_pick.count}/${insights.player_count} players · currently ${insights.most_popular_relegation_pick.actual_position ?? '—'}`
+                : undefined
+            }
+          />
+          <InsightCard
+            label="League stats"
+            primary={`${insights.total_exact_hits} exact hits`}
+            sub={`Avg score ${insights.league_average_score} pts`}
+          />
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
+          <span>Standings</span>
+          <span>{rows.length} players</span>
+        </div>
+        <ol className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          {rows.map((row, i) => (
+            <li
+              key={row.player.id}
+              className="flex items-center gap-3 border-b border-zinc-100 px-4 py-3 last:border-0 dark:border-zinc-800"
+            >
+              <span
+                className={
+                  i < 3
+                    ? 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                    : 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                }
+              >
+                {row.rank}
+              </span>
+              <Link
+                href={`/p/${row.player.invite_code}`}
+                className="min-w-0 flex-1 group"
+              >
+                <div className="flex items-baseline gap-2">
+                  <span className="truncate font-medium group-hover:underline">
+                    {row.player.display_name}
+                  </span>
+                </div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-zinc-500 dark:text-zinc-500">
+                  <span>
+                    Joker:{' '}
+                    <span className="text-zinc-700 dark:text-zinc-300">
+                      {row.joker_team_name ?? '—'}
+                    </span>{' '}
+                    <span
+                      className={
+                        row.joker_points > 0
+                          ? 'text-emerald-700 dark:text-emerald-400'
+                          : 'text-zinc-400 dark:text-zinc-600'
+                      }
+                    >
+                      ({row.joker_points} pts)
+                    </span>
+                  </span>
+                  <span className="text-zinc-300 dark:text-zinc-700">·</span>
+                  <span>
+                    Exact hits:{' '}
+                    <span className="text-zinc-700 dark:text-zinc-300">
+                      {row.exact_hits}
+                    </span>
+                  </span>
+                </div>
+              </Link>
+              <span className="ml-auto shrink-0 text-right">
+                <span className="block text-xl font-semibold tabular-nums">
+                  {row.total}
+                </span>
+                <span className="block text-xs uppercase tracking-wide text-zinc-500">
+                  pts
+                </span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <footer className="mt-10 text-xs text-zinc-500 dark:text-zinc-500">
+        <p>
+          The displayed score is the live snapshot of each player&apos;s
+          prediction against the current Premier League table. Every player
+          gets their own private link — tap any name above for the team-by-team
+          breakdown.
+        </p>
+      </footer>
+    </main>
+  )
+}
+
+function InsightCard({
+  label,
+  primary,
+  sub,
+  accent = false,
+}: {
+  label: string
+  primary: string
+  sub?: string
+  accent?: boolean
+}) {
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+        {label}
+      </div>
+      <div
+        className={
+          accent
+            ? 'mt-1 text-base font-semibold leading-tight text-emerald-700 dark:text-emerald-400'
+            : 'mt-1 text-base font-semibold leading-tight'
+        }
+      >
+        {primary}
+      </div>
+      {sub && (
+        <div className="mt-1 text-xs leading-snug text-zinc-500 dark:text-zinc-500">
+          {sub}
+        </div>
+      )}
     </div>
-  );
+  )
 }

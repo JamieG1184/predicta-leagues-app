@@ -6,9 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed": "node --env-file=.env.local scripts/seed.mjs",
+    "sportmonks:discover": "node --env-file=.env.local scripts/sportmonks-discover.mjs",
+    "sportmonks:fixtures-test": "node --env-file=.env.local scripts/sportmonks-fixtures-test.mjs",
+    "sportmonks:map-teams": "node --env-file=.env.local scripts/sportmonks-map-teams.mjs",
+    "sportmonks:sync-standings": "node --env-file=.env.local scripts/sportmonks-sync-standings.mjs",
+    "scores:calculate": "node --env-file=.env.local scripts/calculate-scores.mjs",
+    "sportmonks:sync-fixtures": "node --env-file=.env.local scripts/sportmonks-sync-fixtures.mjs",
+    "db:check": "node --env-file=.env.local scripts/db-check.mjs",
+    "db:rebuild": "npm run db:seed && npm run sportmonks:map-teams && npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
+    "digest:snapshot": "npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
+    "digest:demo": "node --env-file=.env.local scripts/digest-demo.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.3",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
