@@ -108,7 +108,7 @@ async function syncStandings(seasonId: number, teamIdBySportmonks: Map<number, n
     .select('team_id, position, points')
     .eq('season_id', seasonId)
   const existingHash = (existing ?? [])
-    .map((r) => `${r.team_id}:${r.position}:${r.points}`)
+    .map((r: any) => `${r.team_id}:${r.position}:${r.points}`)
     .sort()
     .join('|')
   const standingsChanged = hash !== existingHash
@@ -151,8 +151,8 @@ export async function GET() {
       .select('id, sportmonks_id')
     const teamIdBySportmonks = new Map(
       (teams ?? [])
-        .filter((t) => t.sportmonks_id != null)
-        .map((t) => [t.sportmonks_id as number, t.id])
+        .filter((t: any) => t.sportmonks_id != null)
+        .map((t: any): [number, number] => [t.sportmonks_id as number, t.id])
     )
 
     // 1. Fetch in-play live matches with scores include (gracefully degrades
@@ -215,7 +215,17 @@ export async function GET() {
       return { home, away }
     }
 
-    const liveFixtures = plLive.map((f: any) => {
+    type LiveFixture = {
+      id: number
+      name: string
+      state_id: number
+      period: string | null
+      starting_at: string
+      result_info: string | null
+      home_score: number | null
+      away_score: number | null
+    }
+    const liveFixtures: LiveFixture[] = plLive.map((f: any) => {
       const { home, away } = extractScores(f)
       return {
         id: f.id,
@@ -238,7 +248,7 @@ export async function GET() {
         .select('sportmonks_id, live_home_score, live_away_score, live_period, state_id')
         .in('sportmonks_id', ids)
       const existingById = new Map(
-        (existing ?? []).map((r) => [r.sportmonks_id, r])
+        (existing ?? []).map((r: any): [number, any] => [r.sportmonks_id, r])
       )
 
       for (const f of liveFixtures) {
@@ -270,7 +280,9 @@ export async function GET() {
       .from('fixtures')
       .select('sportmonks_id')
       .not('live_period', 'is', null)
-    const stale = (lingering ?? []).filter((r) => !liveIds.has(r.sportmonks_id))
+    const stale = (lingering ?? []).filter(
+      (r: any) => !liveIds.has(r.sportmonks_id)
+    )
     if (stale.length > 0) {
       await supabaseServer
         .from('fixtures')
@@ -282,7 +294,7 @@ export async function GET() {
         })
         .in(
           'sportmonks_id',
-          stale.map((r) => r.sportmonks_id)
+          stale.map((r: any) => r.sportmonks_id)
         )
       liveScoresChanged = true
     }
