@@ -7,10 +7,13 @@ import {
   getPlayerMovement,
   getScenarioData,
   getPlayerBadges,
+  getAdminPlayerDetail,
+  getOriginalPredictionByName,
   BADGE_LABELS,
   type PlayerMovement,
   type PreviousFixture,
   type WeeklyBadge,
+  type OriginalPrediction,
 } from '@/src/lib/data'
 import { CompareSelector } from '../../compare/CompareSelector'
 import { TeamBadge } from '../../_components/TeamBadge'
@@ -32,6 +35,9 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
   ])
   if (!detail) notFound()
   const badges = await getPlayerBadges(detail.player.id)
+  const adminDetail = await getAdminPlayerDetail(code)
+  const originalPredictions = getOriginalPredictionByName(detail.player.display_name)
+  const shiftInfo = adminDetail?.shift ?? null
   const allPlayers = board.map((r) => ({
     display_name: r.player.display_name,
     invite_code: r.player.invite_code,
@@ -88,6 +94,16 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
         scenario_fixtures={scenario?.fixtures ?? []}
         scenario_standings={scenario?.current_standings ?? []}
         scenario_players={scenario?.all_players ?? []}
+        original_predictions={originalPredictions}
+        shift_info={
+          shiftInfo
+            ? {
+                team_name: shiftInfo.team_name,
+                old_position: shiftInfo.old_position,
+                new_position: shiftInfo.new_position,
+              }
+            : null
+        }
       />
 
       <footer className="mt-10 text-xs text-zinc-500 dark:text-zinc-500">

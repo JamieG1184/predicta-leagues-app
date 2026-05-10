@@ -256,6 +256,277 @@ export async function getLeagueInsights(): Promise<LeagueInsights> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Live-projected leaderboard
+// ---------------------------------------------------------------------------
+//
+// "Projection" means: take the current PL standings, layer on the in-play
+// match scores AS IF those matches ended right now (3 pts for the leading
+// team, 1 each on a draw), re-rank teams, then recompute every player's
+// prediction score against that projected table.
+//
+// Result feeds the homepage's opt-in "Live projection" toggle so engaged
+// players can watch the leaderboard shift during match windows. It does NOT
+// touch any persisted data — purely a derived view.
+//
+// Tiebreak note: the actual_standings table doesn't currently track goal
+// difference (it's stored as 0 for all teams). When projected points tie, we
+// fall back to the team's original PL position, which preserves whatever GD
+// ordering was in place pre-projection. Good enough for v1.
+
+export type ProjectedLeaderboardRow = {
+  player: Player
+  rank: number
+  total: number
+  joker_team_name: string | null
+  joker_points: number
+  exact_hits: number
+}
+
+export type ProjectedLeaderboardResult = {
+  rows: ProjectedLeaderboardRow[]
+  in_play_count: number
+  fetched_at: string
+  has_projection: boolean // false when no in-play fixtures
+}
+
+async function getInPlayPLFixtures(seasonId: number) {
+  const { data, error } = await supabaseServer
+    .from('fixtures')
+    .select(
+      'sportmonks_id, home_team_id, away_team_id, live_home_score, live_away_score, live_period'
+    )
+    .eq('season_id', seasonId)
+    .not('live_period', 'is', null)
+    .neq('state_id', 5) // exclude FT
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getProjectedLeaderboard(): Promise<ProjectedLeaderboardResult> {
+  const season = await getCurrentSeason()
+  const [actual, teamsById, predictions, players, livePLFixtures] = await Promise.all([
+    getActualStandingsBySeason(season.id),
+    getTeamsById(),
+    getAllPredictions(season.id),
+    getAllPlayers(),
+    getInPlayPLFixtures(season.id),
+  ])
+
+  // Mutable copy of the standings for projection.
+  const teamStanding = new Map<number, { points: number; originalPosition: number }>()
+  for (const s of actual) {
+    teamStanding.set(s.team_id, { points: s.points, originalPosition: s.position })
+  }
+
+  // Apply each in-play fixture's projected outcome.
+  for (const f of livePLFixtures) {
+    if (f.home_team_id == null || f.away_team_id == null) continue
+    if (f.live_home_score == null || f.live_away_score == null) continue
+    const home = teamStanding.get(f.home_team_id)
+    const away = teamStanding.get(f.away_team_id)
+    if (!home || !away) continue
+    if (f.live_home_score > f.live_away_score) {
+      home.points += 3
+    } else if (f.live_home_score < f.live_away_score) {
+      away.points += 3
+    } else {
+      home.points += 1
+      away.points += 1
+    }
+  }
+
+  // Re-rank by projected points (tiebreak: pre-projection position).
+  const projected = [...teamStanding.entries()]
+    .map(([team_id, v]) => ({ team_id, points: v.points, originalPosition: v.originalPosition }))
+    .sort((a, b) => b.points - a.points || a.originalPosition - b.originalPosition)
+  const projectedByTeamId = new Map<number, number>()
+  projected.forEach((p, i) => projectedByTeamId.set(p.team_id, i + 1))
+
+  const rows = players.map((player) => {
+    const myPreds = predictions.filter((p) => p.player_id === player.id)
+    const scored = scorePlayer(myPreds, projectedByTeamId, teamsById)
+    const total = totalForPlayer(scored)
+    const jokerEntry = scored.find((s) => s.is_joker)
+    const exact = scored.filter((s) => s.distance === 0).length
+    return {
+      player,
+      total,
+      joker_team_name: jokerEntry?.team_name ?? null,
+      joker_points: jokerEntry?.points ?? 0,
+      exact_hits: exact,
+    }
+  })
+
+  rows.sort(
+    (a, b) =>
+      b.total - a.total ||
+      b.joker_points - a.joker_points ||
+      b.exact_hits - a.exact_hits ||
+      a.player.display_name.localeCompare(b.player.display_name)
+  )
+
+  const ranked: ProjectedLeaderboardRow[] = rows.map((r, i) => ({ ...r, rank: i + 1 }))
+
+  return {
+    rows: ranked,
+    in_play_count: livePLFixtures.length,
+    fetched_at: new Date().toISOString(),
+    has_projection: livePLFixtures.length > 0,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Last score update timestamp (most recent score_snapshots row)
+// ---------------------------------------------------------------------------
+//
+// Used by the "Latest movements" header on the homepage so players can see
+// exactly when the rank changes were calculated.
+
+export async function getLastScoreUpdateTime(): Promise<string | null> {
+  const season = await getCurrentSeason()
+  const { data, error } = await supabaseServer
+    .from('score_snapshots')
+    .select('snapshot_at')
+    .eq('season_id', season.id)
+    .order('snapshot_at', { ascending: false })
+    .limit(1)
+  if (error) throw error
+  return data && data.length > 0 ? data[0].snapshot_at : null
+}
+
+// ---------------------------------------------------------------------------
+// Daily score insights (rolled up from score_snapshots by calendar day)
+// ---------------------------------------------------------------------------
+//
+// "Daily score" = how much a player's cumulative score CHANGED on a given
+// calendar day versus the previous scoring day. The very first scoring day in
+// the season is treated as the baseline and excluded from deltas (we can't
+// compute a delta with no prior).
+//
+// Snapshots come from `npm run scores:calculate` (one row per player per
+// calculation event). For days with multiple snapshots, we use that day's
+// LAST cumulative_score. For days where a player has no snapshot but the
+// league does, we carry forward their last known score (so their delta on
+// that day is 0).
+
+export type DailyScoreInsights = {
+  league_avg_per_day: number
+  highest_mean_player: { name: string; mean_per_day: number; days: number } | null
+  highest_single_day: { player_name: string; delta: number; date: string } | null
+  lowest_single_day: { player_name: string; delta: number; date: string } | null
+  scoring_days: number
+}
+
+export async function getDailyScoreInsights(): Promise<DailyScoreInsights> {
+  const season = await getCurrentSeason()
+  const players = await getAllPlayers()
+  const playerById = new Map(players.map((p) => [p.id, p]))
+
+  const { data: snaps, error } = await supabaseServer
+    .from('score_snapshots')
+    .select('player_id, cumulative_score, snapshot_at')
+    .eq('season_id', season.id)
+    .order('snapshot_at', { ascending: true })
+  if (error) throw error
+
+  const empty: DailyScoreInsights = {
+    league_avg_per_day: 0,
+    highest_mean_player: null,
+    highest_single_day: null,
+    lowest_single_day: null,
+    scoring_days: 0,
+  }
+  if (!snaps || snaps.length === 0) return empty
+
+  // For each (player, calendar_date), keep the LAST cumulative_score that day.
+  const playerDateScores = new Map<number, Map<string, number>>()
+  const allDatesSet = new Set<string>()
+  for (const s of snaps) {
+    const date = String(s.snapshot_at).slice(0, 10) // YYYY-MM-DD
+    allDatesSet.add(date)
+    if (!playerDateScores.has(s.player_id)) playerDateScores.set(s.player_id, new Map())
+    playerDateScores.get(s.player_id)!.set(date, s.cumulative_score)
+  }
+
+  const allDates = [...allDatesSet].sort()
+  if (allDates.length < 2) return { ...empty, scoring_days: 0 }
+
+  // Carry-forward fill: if a player missed a league date, use their last known score.
+  for (const [, dateMap] of playerDateScores) {
+    let lastScore: number | null = null
+    for (const date of allDates) {
+      if (dateMap.has(date)) {
+        lastScore = dateMap.get(date)!
+      } else if (lastScore != null) {
+        dateMap.set(date, lastScore)
+      }
+    }
+  }
+
+  // Compute deltas, skipping the baseline (first) date.
+  type Delta = { player_id: number; date: string; delta: number }
+  const deltas: Delta[] = []
+  for (const [playerId, dateMap] of playerDateScores) {
+    for (let i = 1; i < allDates.length; i++) {
+      const today = dateMap.get(allDates[i])
+      const yesterday = dateMap.get(allDates[i - 1])
+      if (today == null || yesterday == null) continue
+      deltas.push({ player_id: playerId, date: allDates[i], delta: today - yesterday })
+    }
+  }
+  if (deltas.length === 0) return { ...empty, scoring_days: allDates.length - 1 }
+
+  // League average across all (player, day) deltas.
+  const leagueAvg = deltas.reduce((s, d) => s + d.delta, 0) / deltas.length
+
+  // Per-player mean — pick the player with the highest mean.
+  const playerAgg = new Map<number, { sum: number; n: number }>()
+  for (const d of deltas) {
+    const cur = playerAgg.get(d.player_id) ?? { sum: 0, n: 0 }
+    playerAgg.set(d.player_id, { sum: cur.sum + d.delta, n: cur.n + 1 })
+  }
+  let highestMean: DailyScoreInsights['highest_mean_player'] = null
+  for (const [playerId, agg] of playerAgg) {
+    const mean = agg.sum / agg.n
+    if (highestMean == null || mean > highestMean.mean_per_day) {
+      highestMean = {
+        name: playerById.get(playerId)?.display_name ?? '?',
+        mean_per_day: Math.round(mean * 10) / 10,
+        days: agg.n,
+      }
+    }
+  }
+
+  // Single best and worst day.
+  let highestSingle: Delta | null = null
+  let lowestSingle: Delta | null = null
+  for (const d of deltas) {
+    if (highestSingle == null || d.delta > highestSingle.delta) highestSingle = d
+    if (lowestSingle == null || d.delta < lowestSingle.delta) lowestSingle = d
+  }
+
+  return {
+    league_avg_per_day: Math.round(leagueAvg * 10) / 10,
+    highest_mean_player: highestMean,
+    highest_single_day: highestSingle
+      ? {
+          player_name: playerById.get(highestSingle.player_id)?.display_name ?? '?',
+          delta: highestSingle.delta,
+          date: highestSingle.date,
+        }
+      : null,
+    lowest_single_day: lowestSingle
+      ? {
+          player_name: playerById.get(lowestSingle.player_id)?.display_name ?? '?',
+          delta: lowestSingle.delta,
+          date: lowestSingle.date,
+        }
+      : null,
+    scoring_days: allDates.length - 1,
+  }
+}
+
 export async function getPlayerDetail(inviteCode: string): Promise<PlayerDetail | null> {
   const season = await getCurrentSeason()
   const [standings, teamsById, predictions, players] = await Promise.all([
@@ -985,6 +1256,50 @@ export async function getDailyDigest(): Promise<DailyDigest> {
     avg_score_then: Math.round(avgThen * 10) / 10,
     narrative_segments: generateNarrative(movements, digestFixtures, leader, previousLeaderName),
   }
+}
+
+// ---------------------------------------------------------------------------
+// Original predictions (loaded from the seed JSON)
+// ---------------------------------------------------------------------------
+
+import { readFileSync } from 'fs'
+import { join } from 'path'
+
+export type OriginalPrediction = {
+  position: number
+  team_name: string
+  is_joker: boolean
+}
+
+let _originalsByName: Map<string, OriginalPrediction[]> | null = null
+
+function loadOriginalsFromSeed(): Map<string, OriginalPrediction[]> {
+  if (_originalsByName) return _originalsByName
+  const seedPath = join(process.cwd(), 'seed-data-2025-26.json')
+  const raw = readFileSync(seedPath, 'utf-8')
+  const seed = JSON.parse(raw)
+  const map = new Map<string, OriginalPrediction[]>()
+  for (const player of seed.players ?? []) {
+    map.set(
+      player.name,
+      (player.predictions ?? []).map((p: any) => ({
+        position: p.position,
+        team_name: p.team,
+        is_joker: p.team === player.joker_team,
+      }))
+    )
+  }
+  _originalsByName = map
+  return map
+}
+
+/**
+ * Look up a player's original (pre-shift) prediction list from the seed file.
+ * Returns null if the player has no original on file (e.g. excluded players).
+ */
+export function getOriginalPredictionByName(playerName: string): OriginalPrediction[] | null {
+  const map = loadOriginalsFromSeed()
+  return map.get(playerName) ?? null
 }
 
 // ---------------------------------------------------------------------------

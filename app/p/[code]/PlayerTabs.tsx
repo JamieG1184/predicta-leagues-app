@@ -3,7 +3,11 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import type { ScoredPrediction } from '@/src/lib/scoring'
-import type { FixtureLookAhead, FixtureSide } from '@/src/lib/data'
+import type {
+  FixtureLookAhead,
+  FixtureSide,
+  OriginalPrediction,
+} from '@/src/lib/data'
 import type {
   ScenarioFixture,
   ScenarioStanding,
@@ -13,7 +17,7 @@ import { slugifyTeam } from '@/src/lib/slugify'
 import { TeamBadge } from '../../_components/TeamBadge'
 import { ScenarioBuilder } from './ScenarioBuilder'
 
-type Tab = 'prediction' | 'fixtures' | 'pl_table' | 'scenario'
+type Tab = 'prediction' | 'original' | 'fixtures' | 'pl_table' | 'scenario'
 
 type Props = {
   scored: ScoredPrediction[]
@@ -25,20 +29,33 @@ type Props = {
   scenario_fixtures: ScenarioFixture[]
   scenario_standings: ScenarioStanding[]
   scenario_players: ScenarioPlayer[]
+  original_predictions: OriginalPrediction[] | null
+  shift_info: {
+    team_name: string
+    old_position: number
+    new_position: number
+  } | null
 }
 
 export function PlayerTabs(props: Props) {
   const [tab, setTab] = useState<Tab>('prediction')
 
+  const showOriginalTab = !!props.shift_info && !!props.original_predictions
+
   return (
     <div>
       <div
         role="tablist"
-        className="mb-5 flex gap-1 rounded-lg border border-zinc-200 bg-white p-1 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+        className="mb-5 flex flex-wrap gap-1 rounded-lg border border-zinc-200 bg-white p-1 text-sm dark:border-zinc-800 dark:bg-zinc-900"
       >
         <TabButton active={tab === 'prediction'} onClick={() => setTab('prediction')}>
           Prediction
         </TabButton>
+        {showOriginalTab && (
+          <TabButton active={tab === 'original'} onClick={() => setTab('original')}>
+            Original
+          </TabButton>
+        )}
         <TabButton
           active={tab === 'fixtures'}
           onClick={() => setTab('fixtures')}
@@ -60,6 +77,12 @@ export function PlayerTabs(props: Props) {
       </div>
 
       {tab === 'prediction' && <PredictionTab scored={props.scored} total={props.total} />}
+      {tab === 'original' && showOriginalTab && (
+        <OriginalTab
+          original={props.original_predictions!}
+          shift={props.shift_info!}
+        />
+      )}
       {tab === 'fixtures' && <FixturesTab fixtures={props.fixtures} />}
       {tab === 'pl_table' && <PLTableTab table={props.current_table} />}
       {tab === 'scenario' && (
@@ -191,6 +214,82 @@ function PredictionTab({
                 {total}
               </td>
             </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Original prediction tab
+// ---------------------------------------------------------------------------
+
+function OriginalTab({
+  original,
+  shift,
+}: {
+  original: OriginalPrediction[]
+  shift: { team_name: string; old_position: number; new_position: number }
+}) {
+  const sorted = [...original].sort((a, b) => a.position - b.position)
+  return (
+    <section>
+      <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
+        <span>Your season-start prediction</span>
+        <span>Pre-shift</span>
+      </div>
+
+      <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-700/40 dark:bg-amber-500/10">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-300">
+          Mid-season shift on file
+        </p>
+        <p className="mt-1.5 leading-relaxed">
+          You moved <strong>{shift.team_name}</strong> from{' '}
+          <strong>position #{shift.old_position}</strong> to{' '}
+          <strong>position #{shift.new_position}</strong> during the January
+          window. The "Prediction" tab shows your current (post-shift) lineup;
+          this tab shows what you originally went with at season start.
+        </p>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <table className="w-full text-sm">
+          <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/60">
+            <tr>
+              <th className="px-3 py-2 text-left font-medium">Position</th>
+              <th className="px-3 py-2 text-left font-medium">Team</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((row) => (
+              <tr
+                key={row.team_name}
+                className={
+                  row.is_joker
+                    ? 'border-t border-zinc-100 bg-amber-50/60 dark:border-zinc-800 dark:bg-amber-500/5'
+                    : 'border-t border-zinc-100 dark:border-zinc-800'
+                }
+              >
+                <td className="px-3 py-2 tabular-nums text-zinc-600 dark:text-zinc-400">
+                  {row.position}
+                </td>
+                <td className="px-3 py-2">
+                  <Link
+                    href={`/team/${slugifyTeam(row.team_name)}`}
+                    className="inline-flex items-center gap-2 font-medium hover:underline"
+                  >
+                    <TeamBadge teamName={row.team_name} size={20} />
+                    {row.team_name}
+                  </Link>
+                  {row.is_joker && (
+                    <span className="ml-2 inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+                      Joker × 2
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

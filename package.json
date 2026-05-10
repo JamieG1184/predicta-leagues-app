@@ -18,7 +18,8 @@
     "db:rebuild": "npm run db:seed -- --force && npm run sportmonks:map-teams && npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
     "digest:snapshot": "npm run sportmonks:sync-standings && npm run sportmonks:sync-fixtures && npm run scores:calculate",
     "digest:demo": "node --env-file=.env.local scripts/digest-demo.mjs",
-    "badges:award": "node --env-file=.env.local scripts/badges-award.mjs"
+    "badges:award": "node --env-file=.env.local scripts/badges-award.mjs",
+    "shifts:apply": "node --env-file=.env.local scripts/apply-mid-season-shifts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.3",
