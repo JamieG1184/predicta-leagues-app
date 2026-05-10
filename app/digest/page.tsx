@@ -176,19 +176,16 @@ function DigestBody({
               >
                 {m.player_name}
               </Link>
-              <span className="text-xs text-zinc-500 tabular-nums">
+              <span className="text-xs tabular-nums">
                 {m.score_change === 0 ? (
-                  '·'
+                  <span className="text-zinc-400">·</span>
+                ) : m.score_change > 0 ? (
+                  <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                    ▲ {m.score_change}
+                  </span>
                 ) : (
-                  <span
-                    className={
-                      m.score_change > 0
-                        ? 'text-emerald-700 dark:text-emerald-400'
-                        : 'text-rose-700 dark:text-rose-400'
-                    }
-                  >
-                    {m.score_change > 0 ? '+' : ''}
-                    {m.score_change}
+                  <span className="font-medium text-rose-700 dark:text-rose-400">
+                    ▼ {Math.abs(m.score_change)}
                   </span>
                 )}
               </span>
@@ -346,16 +343,15 @@ function MoverCard({
         {movement.player_name}
       </Link>
       <div className="mt-1 text-sm">
-        <span
-          className={
-            movement.score_change > 0
-              ? 'font-semibold text-emerald-700 dark:text-emerald-400'
-              : 'font-semibold text-rose-700 dark:text-rose-400'
-          }
-        >
-          {movement.score_change > 0 ? '+' : ''}
-          {movement.score_change} pts
-        </span>{' '}
+        {movement.score_change > 0 ? (
+          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+            ▲ {movement.score_change} pts
+          </span>
+        ) : (
+          <span className="font-semibold text-rose-700 dark:text-rose-400">
+            ▼ {Math.abs(movement.score_change)} pts
+          </span>
+        )}{' '}
         · #{movement.rank_before ?? '—'} → #{movement.rank_after}
       </div>
       {movement.joker_team_name && (

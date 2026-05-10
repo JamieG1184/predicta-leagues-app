@@ -155,6 +155,19 @@ export default async function LeaderboardPage() {
                   </span>
                 </div>
               </Link>
+              {row.score_change != null && row.score_change !== 0 && (
+                <span className="shrink-0 text-xs font-semibold tabular-nums">
+                  {row.score_change > 0 ? (
+                    <span className="text-emerald-700 dark:text-emerald-400">
+                      ▲ {row.score_change}
+                    </span>
+                  ) : (
+                    <span className="text-rose-700 dark:text-rose-400">
+                      ▼ {Math.abs(row.score_change)}
+                    </span>
+                  )}
+                </span>
+              )}
               <span className="ml-auto shrink-0 text-right">
                 <span className="block text-xl font-semibold tabular-nums">
                   {row.total}

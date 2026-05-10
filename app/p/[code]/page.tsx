@@ -194,8 +194,11 @@ function RecentActivity({ movement }: { movement: PlayerMovement }) {
               Score change
             </div>
             <div className={`mt-1 text-lg font-semibold tabular-nums ${scoreClass}`}>
-              {movement.score_change > 0 ? '+' : ''}
-              {movement.score_change}
+              {movement.score_change === 0
+                ? 'No change'
+                : movement.score_change > 0
+                ? `▲ ${movement.score_change}`
+                : `▼ ${Math.abs(movement.score_change)}`}
             </div>
             <div className="text-xs text-emerald-800/70 dark:text-emerald-300/60">
               {movement.score_before ?? '—'} → {movement.score_after}
@@ -348,18 +351,17 @@ function PreviousFixtureCard({ fixture }: { fixture: PreviousFixture }) {
 
       <div className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-500">
         Estimated score impact:{' '}
-        <span
-          className={
-            fixture.delta_actual > 0
-              ? 'font-semibold text-emerald-700 dark:text-emerald-400'
-              : fixture.delta_actual < 0
-              ? 'font-semibold text-rose-700 dark:text-rose-400'
-              : 'font-semibold'
-          }
-        >
-          {fixture.delta_actual > 0 ? '+' : ''}
-          {fixture.delta_actual}
-        </span>{' '}
+        {fixture.delta_actual === 0 ? (
+          <span className="font-semibold">No change</span>
+        ) : fixture.delta_actual > 0 ? (
+          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+            ▲ {fixture.delta_actual}
+          </span>
+        ) : (
+          <span className="font-semibold text-rose-700 dark:text-rose-400">
+            ▼ {Math.abs(fixture.delta_actual)}
+          </span>
+        )}{' '}
         · {fixture.home_team_name} predicted #{fixture.home_predicted_position} (currently #
         {fixture.home_actual_position ?? '—'}); {fixture.away_team_name} predicted #
         {fixture.away_predicted_position} (currently #

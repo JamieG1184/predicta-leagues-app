@@ -19,6 +19,8 @@ export type LeaderboardRow = {
   joker_team_name: string | null
   joker_points: number
   exact_hits: number
+  score_change: number | null
+  rank_change: number | null
 }
 
 export type PlayerDetail = {
@@ -127,7 +129,28 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
       a.player.display_name.localeCompare(b.player.display_name)
   )
 
-  return rows.map((r, i) => ({ ...r, rank: i + 1 }))
+  const ranked = rows.map((r, i) => ({ ...r, rank: i + 1 }))
+
+  // Layer score / rank change vs previous snapshot batch
+  const batches = await getRecentSnapshotBatches()
+  if (!batches || !batches.previous) {
+    return ranked.map((r) => ({ ...r, score_change: null, rank_change: null }))
+  }
+  const prevScoreBy = new Map(batches.previous.map((s) => [s.player_id, s.live_score]))
+  const prevRanked = [...batches.previous]
+    .sort((a, b) => b.live_score - a.live_score)
+    .map((s, i) => [s.player_id, i + 1] as [number, number])
+  const prevRankBy = new Map(prevRanked)
+
+  return ranked.map((r) => {
+    const prevScore = prevScoreBy.get(r.player.id)
+    const prevRank = prevRankBy.get(r.player.id)
+    return {
+      ...r,
+      score_change: prevScore != null ? r.total - prevScore : null,
+      rank_change: prevRank != null ? prevRank - r.rank : null,
+    }
+  })
 }
 
 export type LeagueInsights = {

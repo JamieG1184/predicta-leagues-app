@@ -293,9 +293,14 @@ function ScenarioResults({
               >
                 {r.display_name}
               </Link>
-              <span className="tabular-nums text-zinc-500">
-                {r.delta > 0 ? '+' : ''}
-                {r.delta}
+              <span className="tabular-nums">
+                {r.delta === 0 ? (
+                  <span className="text-zinc-400">·</span>
+                ) : r.delta > 0 ? (
+                  <span className="font-medium text-emerald-700 dark:text-emerald-400">▲ {r.delta}</span>
+                ) : (
+                  <span className="font-medium text-rose-700 dark:text-rose-400">▼ {Math.abs(r.delta)}</span>
+                )}
               </span>
               <span className="w-10 text-right font-semibold tabular-nums">{r.projected_score}</span>
             </li>

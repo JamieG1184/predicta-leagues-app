@@ -132,12 +132,33 @@ export async function GET() {
     const window = await getMatchWindow(seasonId)
 
     // Idle mode: no fixtures in the immediate window — skip the Sportmonks
-    // calls entirely. The client will widen its polling to ~5 minutes.
+    // calls. We still defensively clear any lingering live_period flags so
+    // matches that finished off-window don't get stuck on the Live strip.
     if (!window.in_window) {
+      const { data: lingering } = await supabaseServer
+        .from('fixtures')
+        .select('sportmonks_id')
+        .not('live_period', 'is', null)
+      let cleared = 0
+      if (lingering && lingering.length > 0) {
+        await supabaseServer
+          .from('fixtures')
+          .update({
+            live_home_score: null,
+            live_away_score: null,
+            live_minute: null,
+            live_period: null,
+          })
+          .in(
+            'sportmonks_id',
+            lingering.map((r: any) => r.sportmonks_id)
+          )
+        cleared = lingering.length
+      }
       cachedResponse = {
         live_fixtures: [],
         has_live_matches: false,
-        has_updates: false,
+        has_updates: cleared > 0,
         idle: true,
         next_fixture_at: window.next_fixture_at,
         last_synced_at: new Date().toISOString(),
