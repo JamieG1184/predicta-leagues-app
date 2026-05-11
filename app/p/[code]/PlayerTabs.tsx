@@ -163,16 +163,19 @@ function PredictionTab({
         <span>Your prediction</span>
         <span>5 / 3 / 1 / 0</span>
       </div>
-      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <table className="w-full text-sm">
+      <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-500 sm:hidden">
+        Swipe sideways to see all columns →
+      </p>
+      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/60">
             <tr>
-              <th className="px-3 py-2 text-center font-medium">My prediction</th>
-              <th className="px-3 py-2 text-left font-medium">Team</th>
-              <th className="px-3 py-2 text-center font-medium">League position</th>
-              <th className="px-3 py-2 text-center font-medium">League points difference</th>
-              <th className="px-3 py-2 text-center font-medium">Joker</th>
-              <th className="px-3 py-2 text-center font-medium">My points</th>
+              <th className="px-2 py-2 text-center font-medium sm:px-3">My prediction</th>
+              <th className="px-2 py-2 text-left font-medium sm:px-3">Team</th>
+              <th className="px-2 py-2 text-center font-medium sm:px-3">League position</th>
+              <th className="px-2 py-2 text-center font-medium sm:px-3">League points difference</th>
+              <th className="px-2 py-2 text-center font-medium sm:px-3">Joker</th>
+              <th className="px-2 py-2 text-center font-medium sm:px-3">My points</th>
             </tr>
           </thead>
           <tbody>
@@ -199,22 +202,22 @@ function PredictionTab({
                       : 'border-t border-zinc-100 dark:border-zinc-800'
                   }
                 >
-                  <td className="px-3 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400">
+                  <td className="px-2 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
                     {row.position}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-2 py-2 sm:px-3">
                     <Link
                       href={`/team/${slugifyTeam(row.team_name)}`}
                       className="inline-flex items-center gap-2 font-medium hover:underline"
                     >
                       <TeamBadge teamName={row.team_name} size={20} />
-                      {row.team_name}
+                      <span className="whitespace-nowrap">{row.team_name}</span>
                     </Link>
                   </td>
-                  <td className="px-3 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400">
+                  <td className="px-2 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
                     {row.actual_position ?? '—'}
                   </td>
-                  <td className="px-3 py-2 text-center text-xs tabular-nums">
+                  <td className="whitespace-nowrap px-2 py-2 text-center text-xs tabular-nums sm:px-3">
                     {gap == null ? (
                       <span className="text-zinc-300 dark:text-zinc-700">—</span>
                     ) : (
@@ -230,14 +233,14 @@ function PredictionTab({
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-center">
+                  <td className="px-2 py-2 text-center sm:px-3">
                     {row.is_joker && (
                       <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
                         Joker
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-center">
+                  <td className="px-2 py-2 text-center sm:px-3">
                     {/*
                       Color tier driven by base_points (distance), not the
                       final value — so a Joker-doubled "1-off" hit still
