@@ -926,7 +926,7 @@ async function getRecentSnapshotBatches() {
     .from('score_snapshots')
     .select('player_id, season_id, live_score, cumulative_score, snapshot_at')
     .order('snapshot_at', { ascending: false })
-    .limit(120)
+    .limit(600) // larger window so we can skip duplicates and still find a meaningful prior batch
   if (error) throw error
   if (!data || data.length === 0) return null
 
@@ -937,13 +937,31 @@ async function getRecentSnapshotBatches() {
   }
   const sortedTimes = [...byTime.keys()].sort().reverse()
   const current = byTime.get(sortedTimes[0]) ?? []
-  const previousTime = sortedTimes[1]
-  const previous = previousTime ? byTime.get(previousTime) ?? null : null
+
+  // Find the most recent PRIOR batch whose scores differ from current. This
+  // means routine recalcs with no fixture-driven changes don't silently wipe
+  // the score-change arrows on the leaderboard. The arrows now represent
+  // movement since the last actual scoring event.
+  const currentScoreBy = new Map(current.map((s) => [s.player_id, s.cumulative_score]))
+  let previous: typeof data | null = null
+  let previousTime: string | null = null
+  for (let i = 1; i < sortedTimes.length; i++) {
+    const candidate = byTime.get(sortedTimes[i]) ?? []
+    const isDifferent = candidate.some(
+      (s) => currentScoreBy.get(s.player_id) !== s.cumulative_score
+    )
+    if (isDifferent) {
+      previous = candidate
+      previousTime = sortedTimes[i]
+      break
+    }
+  }
+
   return {
     current,
     previous,
     currentTime: sortedTimes[0],
-    previousTime: previousTime ?? null,
+    previousTime,
   }
 }
 
