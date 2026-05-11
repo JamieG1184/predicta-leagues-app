@@ -22,6 +22,8 @@ type Row = {
   joker_team_name: string | null
   joker_points: number
   exact_hits: number
+  three_pt_hits?: number
+  one_pt_hits?: number
   score_change?: number | null
   rank_change?: number | null
 }
@@ -235,16 +237,10 @@ export function StandingsList({
                     ({row.joker_points} pts)
                   </span>
                 </span>
-                <span className="text-zinc-300 dark:text-zinc-700">·</span>
-                <span>
-                  Exact hits:{' '}
-                  <span className="text-zinc-700 dark:text-zinc-300">
-                    {row.exact_hits}
-                  </span>
-                </span>
               </div>
             </Link>
             {/*
+              Position arrows — sit to the LEFT of the hit pills.
               Static mode: arrow shows movement vs last fixture.
               Projected mode: arrow shows movement vs static (i.e. impact of
               the live in-play matches if they ended now).
@@ -271,6 +267,16 @@ export function StandingsList({
                 </span>
               )
             })()}
+            {/*
+              Hit-quality pills — sit on the right side of the row, after
+              the position arrows and before the total. Hidden on very
+              narrow viewports so the row doesn't crowd; available from sm: up.
+            */}
+            <span className="hidden shrink-0 items-center gap-1 sm:ml-2 sm:inline-flex">
+              <HitPill tone="exact" count={row.exact_hits} />
+              <HitPill tone="three" count={row.three_pt_hits ?? 0} />
+              <HitPill tone="one" count={row.one_pt_hits ?? 0} />
+            </span>
             <span className="ml-auto shrink-0 text-right">
               <span className="block text-xl font-semibold tabular-nums">
                 {row.total}
@@ -295,6 +301,27 @@ export function StandingsList({
         </p>
       )}
     </section>
+  )
+}
+
+function HitPill({
+  tone,
+  count,
+}: {
+  tone: 'exact' | 'three' | 'one'
+  count: number
+}) {
+  const label = tone === 'exact' ? '5pt' : tone === 'three' ? '3pt' : '1pt'
+  const cls =
+    tone === 'exact'
+      ? 'inline-flex items-center gap-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
+      : tone === 'three'
+        ? 'inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
+        : 'inline-flex items-center gap-1 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-rose-800 dark:bg-rose-500/15 dark:text-rose-300'
+  return (
+    <span className={cls} title={`${count} pick${count === 1 ? '' : 's'} worth ${label} each`}>
+      {label} {count}
+    </span>
   )
 }
 

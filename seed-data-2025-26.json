@@ -3,19 +3,19 @@
   "players": [
     {
       "name": "Scott Ferguson",
-      "joker_team": "Liverpool",
+      "joker_team": "Burnley",
       "predictions": [
         {
           "position": 1,
-          "team": "Arsenal"
+          "team": "Liverpool"
         },
         {
           "position": 2,
-          "team": "Manchester City"
+          "team": "Arsenal"
         },
         {
           "position": 3,
-          "team": "Liverpool"
+          "team": "Manchester City"
         },
         {
           "position": 4,
@@ -1895,7 +1895,7 @@
     },
     {
       "name": "Jamie Gillson",
-      "joker_team": "Sunderland",
+      "joker_team": "Burnley",
       "predictions": [
         {
           "position": 1,
@@ -1981,7 +1981,7 @@
     },
     {
       "name": "Rachael Hill",
-      "joker_team": "Sunderland",
+      "joker_team": "Leeds United",
       "predictions": [
         {
           "position": 1,
@@ -2152,7 +2152,7 @@
       ]
     },
     {
-      "name": "Izza Zdrondowska",
+      "name": "Izza Zdrodowska",
       "joker_team": "Newcastle United",
       "predictions": [
         {

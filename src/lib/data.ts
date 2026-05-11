@@ -18,7 +18,11 @@ export type LeaderboardRow = {
   total: number
   joker_team_name: string | null
   joker_points: number
-  exact_hits: number
+  // Counts of picks at each scoring tier — exact_hits is kept for back
+  // compatibility with anything still reading it (badges, etc.).
+  exact_hits: number      // distance 0 → 5 pts each
+  three_pt_hits: number   // distance 1 → 3 pts each
+  one_pt_hits: number     // distance 2 → 1 pt each
   score_change: number | null
   rank_change: number | null
 }
@@ -112,12 +116,16 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
     const total = totalForPlayer(scored)
     const jokerEntry = scored.find((s) => s.is_joker)
     const exact = scored.filter((s) => s.distance === 0).length
+    const threePt = scored.filter((s) => s.distance === 1).length
+    const onePt = scored.filter((s) => s.distance === 2).length
     return {
       player,
       total,
       joker_team_name: jokerEntry?.team_name ?? null,
       joker_points: jokerEntry?.points ?? 0,
       exact_hits: exact,
+      three_pt_hits: threePt,
+      one_pt_hits: onePt,
     }
   })
 
@@ -281,6 +289,8 @@ export type ProjectedLeaderboardRow = {
   joker_team_name: string | null
   joker_points: number
   exact_hits: number
+  three_pt_hits: number
+  one_pt_hits: number
 }
 
 export type ProjectedLeaderboardResult = {
@@ -349,12 +359,16 @@ export async function getProjectedLeaderboard(): Promise<ProjectedLeaderboardRes
     const total = totalForPlayer(scored)
     const jokerEntry = scored.find((s) => s.is_joker)
     const exact = scored.filter((s) => s.distance === 0).length
+    const threePt = scored.filter((s) => s.distance === 1).length
+    const onePt = scored.filter((s) => s.distance === 2).length
     return {
       player,
       total,
       joker_team_name: jokerEntry?.team_name ?? null,
       joker_points: jokerEntry?.points ?? 0,
       exact_hits: exact,
+      three_pt_hits: threePt,
+      one_pt_hits: onePt,
     }
   })
 
