@@ -11,9 +11,11 @@ const PL_SEASON_ID = 25583
 // In-memory cache to coalesce concurrent client polls within a single
 // serverless instance. Across instances Vercel won't share this — we accept
 // the modest extra cost. At 30 users this is well within Sportmonks limits.
+// Cache TTL chosen to align with the LivePoller's tightest (fast-mode)
+// interval — beyond that we want fresh data so the live strip is responsive.
 let lastSyncAt = 0
 let cachedResponse: any = null
-const CACHE_MS = 30_000
+const CACHE_MS = 12_000
 
 // State for the "settling sync" — when the route transitions from in-window
 // to idle, we force one extra standings sync to catch the Sportmonks lag
@@ -313,6 +315,9 @@ export async function GET() {
     // stable during in-play matches, even if Sportmonks reports interim
     // standings updates.
     let ftTransitionThisPoll = false
+    // Track goals (live score increases) in this poll so the UI can flash a
+    // "GOAL!" pill on the homepage standings.
+    const goalsScored: string[] = []
 
     if (liveFixtures.length > 0) {
       const ids = liveFixtures.map((f) => f.id)
@@ -336,6 +341,18 @@ export async function GET() {
         // FT transition: fixture is at state 5 now, but wasn't before.
         if (f.state_id === 5 && (prev?.state_id ?? null) !== 5) {
           ftTransitionThisPoll = true
+        }
+        // Goal detection: a score number went up since the last poll. Only
+        // fires when we have a previous record — first-time fixture sightings
+        // don't count as goals because we don't know the prior score.
+        if (prev) {
+          const prevH = prev.live_home_score ?? 0
+          const prevA = prev.live_away_score ?? 0
+          const newH = f.home_score ?? 0
+          const newA = f.away_score ?? 0
+          if ((newH > prevH || newA > prevA) && f.name) {
+            goalsScored.push(`${f.name} · ${newH}–${newA}`)
+          }
         }
         await supabaseServer
           .from('fixtures')
@@ -401,6 +418,7 @@ export async function GET() {
       next_fixture_at: window.next_fixture_at,
       last_synced_at: new Date().toISOString(),
       ft_transition: ftTransitionThisPoll,
+      goals_scored: goalsScored,
     }
     lastSyncAt = now
 

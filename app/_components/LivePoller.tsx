@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 type LiveFixture = {
@@ -19,11 +19,20 @@ type LiveResponse = {
   next_fixture_at: string | null
   last_synced_at: string
   cached?: boolean
+  goals_scored?: string[]
 }
 
+// Custom event used to flash a "GOAL!" pill in the StandingsList component.
+// Detail payload is the array of goal description strings from /api/live.
+export type GoalEventDetail = string[]
+export const GOAL_EVENT_NAME = 'predicta-goal'
+
 const IDLE_INTERVAL_MS = 5 * 60_000
-const BASELINE_INTERVAL_MS = 60_000
-const FAST_INTERVAL_MS = 15_000
+// Baseline polling during in-play 1st half. Tightened from 60s → 20s so
+// goals refresh the page within ~20–30s rather than the previous up-to-90s
+// worst case. Sportmonks usage stays well within quota.
+const BASELINE_INTERVAL_MS = 20_000
+const FAST_INTERVAL_MS = 10_000
 
 // Sportmonks state IDs that indicate "near end" — second half, extra time,
 // or stoppage-time periods. When any in-play fixture is in one of these
@@ -47,6 +56,10 @@ export function LivePoller() {
   const [status, setStatus] = useState<LiveResponse | null>(null)
   const [tickAge, setTickAge] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  // Dedup key for goal events: the `last_synced_at` of the response we
+  // already dispatched a goal-event for. Prevents re-firing when the
+  // 30s in-memory cache returns the same goals to the next poll.
+  const lastDispatchedGoalKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -61,6 +74,21 @@ export function LivePoller() {
         if (cancelled) return
         setStatus(json)
         setError(null)
+        // Fire a goal event when this response is the FIRST time we see
+        // these goals (i.e. its last_synced_at differs from the last one
+        // we dispatched for).
+        if (
+          json.goals_scored &&
+          json.goals_scored.length > 0 &&
+          json.last_synced_at !== lastDispatchedGoalKeyRef.current
+        ) {
+          lastDispatchedGoalKeyRef.current = json.last_synced_at
+          window.dispatchEvent(
+            new CustomEvent<GoalEventDetail>(GOAL_EVENT_NAME, {
+              detail: json.goals_scored,
+            })
+          )
+        }
         if (json.has_updates) {
           router.refresh()
         }

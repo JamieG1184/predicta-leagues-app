@@ -14,6 +14,10 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { GOAL_EVENT_NAME, type GoalEventDetail } from './LivePoller'
+
+// How long the GOAL pill stays on screen after a goal is detected.
+const GOAL_PILL_MS = 12_000
 
 type Row = {
   player: { id: number; display_name: string; invite_code: string }
@@ -54,6 +58,25 @@ export function StandingsList({
   // For the "Xs ago" label we tick now() once a second.
   const [, setTick] = useState(0)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // GOAL pill — shown for ~12s after the LivePoller dispatches a goal event.
+  // Holds the most recent goal description (e.g. "Tottenham vs Leeds · 1–0").
+  const [goalMessage, setGoalMessage] = useState<string | null>(null)
+  const goalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    function onGoal(e: Event) {
+      const detail = (e as CustomEvent<GoalEventDetail>).detail ?? []
+      if (detail.length === 0) return
+      setGoalMessage(detail[0] ?? 'Goal!')
+      if (goalTimerRef.current) clearTimeout(goalTimerRef.current)
+      goalTimerRef.current = setTimeout(() => setGoalMessage(null), GOAL_PILL_MS)
+    }
+    window.addEventListener(GOAL_EVENT_NAME, onGoal)
+    return () => {
+      window.removeEventListener(GOAL_EVENT_NAME, onGoal)
+      if (goalTimerRef.current) clearTimeout(goalTimerRef.current)
+    }
+  }, [])
 
   // Hydrate toggle state from localStorage on mount.
   useEffect(() => {
@@ -171,6 +194,18 @@ export function StandingsList({
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
               PROJECTED
+            </span>
+          )}
+          {goalMessage && (
+            <span
+              title={goalMessage}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+            >
+              <span className="relative h-1.5 w-1.5">
+                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-60" />
+                <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              <span>⚽ GOAL · {goalMessage}</span>
             </span>
           )}
         </span>
