@@ -1,6 +1,35 @@
 import { getInPlayFixtures } from '@/src/lib/data'
 import { TeamBadge } from './TeamBadge'
 
+// Map the short period codes we store in the DB to friendlier display labels.
+// We keep the codes themselves (1H / HT / 2H / FT) in the database and in any
+// equality checks elsewhere; this function only touches what the user sees.
+function formatPeriod(code: string | null | undefined): string {
+  if (!code) return ''
+  switch (code) {
+    case '1H':
+      return '1st half'
+    case 'HT':
+      return 'Half time'
+    case '2H':
+      return '2nd half'
+    case 'FT':
+      return 'Full time'
+    case 'ET 1H':
+      return 'Extra time · 1st half'
+    case 'ET HT':
+      return 'Extra time · half time'
+    case 'ET 2H':
+      return 'Extra time · 2nd half'
+    case 'PEN':
+      return 'Penalties'
+    case 'STOPPAGE':
+      return 'Stoppage time'
+    default:
+      return code
+  }
+}
+
 export async function LiveFixturesStrip() {
   const fixtures = await getInPlayFixtures()
   if (fixtures.length === 0) return null
@@ -26,7 +55,7 @@ export async function LiveFixturesStrip() {
                   <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-60" />
                   <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
                 </span>
-                {f.live_period}
+                {formatPeriod(f.live_period)}
               </span>
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <TeamBadge teamName={f.home_team_name} size={20} />

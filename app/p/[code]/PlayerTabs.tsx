@@ -17,6 +17,35 @@ import { slugifyTeam } from '@/src/lib/slugify'
 import { TeamBadge } from '../../_components/TeamBadge'
 import { ScenarioBuilder } from './ScenarioBuilder'
 
+// Map the short period codes we store in the DB to friendlier display labels.
+// Kept in sync with the matching helper in LiveFixturesStrip.tsx — codes
+// themselves still drive the equality checks (live_period !== 'FT' etc.).
+function formatPeriod(code: string | null | undefined): string {
+  if (!code) return ''
+  switch (code) {
+    case '1H':
+      return '1st half'
+    case 'HT':
+      return 'Half time'
+    case '2H':
+      return '2nd half'
+    case 'FT':
+      return 'Full time'
+    case 'ET 1H':
+      return 'Extra time · 1st half'
+    case 'ET HT':
+      return 'Extra time · half time'
+    case 'ET 2H':
+      return 'Extra time · 2nd half'
+    case 'PEN':
+      return 'Penalties'
+    case 'STOPPAGE':
+      return 'Stoppage time'
+    default:
+      return code
+  }
+}
+
 type Tab = 'prediction' | 'original' | 'fixtures' | 'pl_table' | 'scenario'
 
 type Props = {
@@ -167,15 +196,39 @@ function PredictionTab({
         Swipe sideways to see all columns →
       </p>
       <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[560px] text-sm">
           <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/60">
             <tr>
-              <th className="px-2 py-2 text-center font-medium sm:px-3">My prediction</th>
-              <th className="px-2 py-2 text-left font-medium sm:px-3">Team</th>
-              <th className="px-2 py-2 text-center font-medium sm:px-3">League position</th>
-              <th className="px-2 py-2 text-center font-medium sm:px-3">League points difference</th>
-              <th className="px-2 py-2 text-center font-medium sm:px-3">Joker</th>
-              <th className="px-2 py-2 text-center font-medium sm:px-3">My points</th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span>My</span>
+                  <span>prediction</span>
+                </div>
+              </th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span aria-hidden="true">&nbsp;</span>
+                  <span>Team</span>
+                </div>
+              </th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span>My</span>
+                  <span>points</span>
+                </div>
+              </th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span>PL</span>
+                  <span>ranking</span>
+                </div>
+              </th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span>PL points</span>
+                  <span>variance</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -202,45 +255,29 @@ function PredictionTab({
                       : 'border-t border-zinc-100 dark:border-zinc-800'
                   }
                 >
-                  <td className="px-2 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
+                  <td className="px-2 py-2 tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
                     {row.position}
                   </td>
                   <td className="px-2 py-2 sm:px-3">
-                    <Link
-                      href={`/team/${slugifyTeam(row.team_name)}`}
-                      className="inline-flex items-center gap-2 font-medium hover:underline"
-                    >
-                      <TeamBadge teamName={row.team_name} size={20} />
-                      <span className="whitespace-nowrap">{row.team_name}</span>
-                    </Link>
-                  </td>
-                  <td className="px-2 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
-                    {row.actual_position ?? '—'}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-center text-xs tabular-nums sm:px-3">
-                    {gap == null ? (
-                      <span className="text-zinc-300 dark:text-zinc-700">—</span>
-                    ) : (
-                      <span
-                        className={
-                          gap > 0
-                            ? 'font-medium text-sky-700 dark:text-sky-400'
-                            : 'font-medium text-amber-700 dark:text-amber-400'
-                        }
+                    <span className="inline-flex items-center gap-2">
+                      <Link
+                        href={`/team/${slugifyTeam(row.team_name)}`}
+                        className="inline-flex items-center gap-2 font-medium hover:underline"
                       >
-                        {gap > 0 ? '+' : ''}
-                        {gap} pts
-                      </span>
-                    )}
+                        <TeamBadge teamName={row.team_name} size={20} />
+                        <span className="whitespace-nowrap">{row.team_name}</span>
+                      </Link>
+                      {row.is_joker && (
+                        <span
+                          title="Joker (×2)"
+                          className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-amber-300 bg-amber-100 text-[10px] font-bold uppercase tracking-tight text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
+                        >
+                          J
+                        </span>
+                      )}
+                    </span>
                   </td>
-                  <td className="px-2 py-2 text-center sm:px-3">
-                    {row.is_joker && (
-                      <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
-                        Joker
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-2 py-2 text-center sm:px-3">
+                  <td className="px-2 py-2 sm:px-3">
                     {/*
                       Color tier driven by base_points (distance), not the
                       final value — so a Joker-doubled "1-off" hit still
@@ -261,16 +298,36 @@ function PredictionTab({
                       {row.points}
                     </span>
                   </td>
+                  <td className="px-2 py-2 tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
+                    {row.actual_position ?? '—'}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-xs tabular-nums sm:px-3">
+                    {gap == null ? (
+                      <span className="text-zinc-300 dark:text-zinc-700">—</span>
+                    ) : (
+                      <span
+                        className={
+                          gap > 0
+                            ? 'font-medium text-sky-700 dark:text-sky-400'
+                            : 'font-medium text-amber-700 dark:text-amber-400'
+                        }
+                      >
+                        {gap > 0 ? '+' : ''}
+                        {gap} pts
+                      </span>
+                    )}
+                  </td>
                 </tr>
               )
             })}
             <tr className="border-t-2 border-zinc-300 bg-zinc-50 font-semibold dark:border-zinc-700 dark:bg-zinc-900/60">
-              <td colSpan={5} className="px-3 py-2 text-right uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
+              <td colSpan={2} className="px-3 py-2 uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
                 Total
               </td>
-              <td className="px-3 py-2 text-center text-emerald-700 dark:text-emerald-400 tabular-nums">
+              <td className="px-3 py-2 text-emerald-700 dark:text-emerald-400 tabular-nums">
                 {total}
               </td>
+              <td colSpan={2} />
             </tr>
           </tbody>
         </table>
@@ -420,7 +477,7 @@ function FixtureCard({ fixture }: { fixture: FixtureLookAhead }) {
               <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            Live · {fixture.live_period}
+            Live · {formatPeriod(fixture.live_period)}
             {fixture.live_home_score != null && fixture.live_away_score != null && (
               <>
                 {' '}· {fixture.live_home_score}–{fixture.live_away_score}

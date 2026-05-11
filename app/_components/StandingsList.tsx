@@ -240,28 +240,52 @@ export function StandingsList({
               </div>
             </Link>
             {/*
-              Position arrows — sit to the LEFT of the hit pills.
-              Static mode: arrow shows movement vs last fixture.
-              Projected mode: arrow shows movement vs static (i.e. impact of
-              the live in-play matches if they ended now).
+              Movement arrows — sit to the LEFT of the hit pills.
+              Two stacked indicators (when each is non-zero):
+                ▲/▼ N points     — score change
+                ▲/▼ N positions  — rank change
+
+              Static mode: changes are vs the most recent prior snapshot.
+              Projected mode: changes are vs the static (pre-projection)
+              position, showing how the in-play match results would shift
+              the player if they ended right now.
             */}
             {(() => {
-              const delta = showProjected
+              const scoreDelta = showProjected
                 ? row.projected_score_change ?? 0
                 : row.score_change ?? 0
-              const haveDelta = showProjected
+              const rankDelta = showProjected
+                ? row.projected_rank_change ?? 0
+                : row.rank_change ?? 0
+              const haveScore = showProjected
                 ? row.projected_score_change != null && row.projected_score_change !== 0
                 : row.score_change != null && row.score_change !== 0
-              if (!haveDelta) return null
+              const haveRank = showProjected
+                ? row.projected_rank_change != null && row.projected_rank_change !== 0
+                : row.rank_change != null && row.rank_change !== 0
+              if (!haveScore && !haveRank) return null
               return (
-                <span className="shrink-0 text-xs font-semibold tabular-nums">
-                  {delta > 0 ? (
-                    <span className="text-emerald-700 dark:text-emerald-400">
-                      ▲ {delta}
+                <span className="flex shrink-0 items-center gap-2 text-xs font-semibold tabular-nums">
+                  {haveRank && (
+                    <span
+                      className={
+                        rankDelta > 0
+                          ? 'text-emerald-700 dark:text-emerald-400'
+                          : 'text-rose-700 dark:text-rose-400'
+                      }
+                    >
+                      {rankDelta > 0 ? '▲' : '▼'} {Math.abs(rankDelta)} positions
                     </span>
-                  ) : (
-                    <span className="text-rose-700 dark:text-rose-400">
-                      ▼ {Math.abs(delta)}
+                  )}
+                  {haveScore && (
+                    <span
+                      className={
+                        scoreDelta > 0
+                          ? 'text-emerald-700 dark:text-emerald-400'
+                          : 'text-rose-700 dark:text-rose-400'
+                      }
+                    >
+                      {scoreDelta > 0 ? '▲' : '▼'} {Math.abs(scoreDelta)} points
                     </span>
                   )}
                 </span>
