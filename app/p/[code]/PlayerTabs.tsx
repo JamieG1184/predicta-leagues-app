@@ -140,7 +140,7 @@ function PredictionTab({
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
-        <span>Your prediction vs reality</span>
+        <span>Your prediction</span>
         <span>5 / 3 / 1 / 0</span>
       </div>
       <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
@@ -149,8 +149,7 @@ function PredictionTab({
             <tr>
               <th className="px-3 py-2 text-left font-medium">You</th>
               <th className="px-3 py-2 text-left font-medium">Team</th>
-              <th className="px-3 py-2 text-left font-medium">Actual</th>
-              <th className="px-3 py-2 text-right font-medium">Δ</th>
+              <th className="px-3 py-2 text-left font-medium">League position</th>
               <th className="px-3 py-2 text-right font-medium">Pts</th>
             </tr>
           </thead>
@@ -184,15 +183,6 @@ function PredictionTab({
                 <td className="px-3 py-2 tabular-nums text-zinc-600 dark:text-zinc-400">
                   {row.actual_position ?? '—'}
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {row.distance == null ? (
-                    <span className="text-zinc-400">—</span>
-                  ) : row.distance === 0 ? (
-                    <span className="font-medium text-emerald-700 dark:text-emerald-400">✓</span>
-                  ) : (
-                    <span className="text-zinc-500">±{row.distance}</span>
-                  )}
-                </td>
                 <td className="px-3 py-2 text-right">
                   <span
                     className={
@@ -207,7 +197,7 @@ function PredictionTab({
               </tr>
             ))}
             <tr className="border-t-2 border-zinc-300 bg-zinc-50 font-semibold dark:border-zinc-700 dark:bg-zinc-900/60">
-              <td colSpan={4} className="px-3 py-2 text-right uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
+              <td colSpan={3} className="px-3 py-2 text-right uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
                 Total
               </td>
               <td className="px-3 py-2 text-right text-emerald-700 dark:text-emerald-400 tabular-nums">

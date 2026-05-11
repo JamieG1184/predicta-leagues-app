@@ -2114,14 +2114,43 @@ function pointsFor(predictedPos: number, actualPos: number, isJoker: boolean) {
   return base * (isJoker ? 2 : 1)
 }
 
-function deltaForMove(
-  predictedPos: number | null,
-  oldActualPos: number | null,
-  newActualPos: number | null,
-  isJoker: boolean
-) {
-  if (predictedPos == null || oldActualPos == null || newActualPos == null) return 0
-  return pointsFor(predictedPos, newActualPos, isJoker) - pointsFor(predictedPos, oldActualPos, isJoker)
+/**
+ * Project new PL positions given a set of point-changes layered onto the
+ * current actual standings. Re-ranks all 20 teams using current points +
+ * deltas. Tiebreaker is original position (preserves whatever GD ordering
+ * was in place pre-projection — actual_standings doesn't track GD).
+ *
+ * Used by the fixture look-ahead to compute accurate "what if this match
+ * ends X" deltas, instead of the old ±1 heuristic.
+ */
+function projectPositionsByTeam(
+  baseStandings: { team_id: number; position: number; points: number }[],
+  pointChanges: Map<number, number>
+): Map<number, number> {
+  const adjusted = baseStandings.map((s) => ({
+    team_id: s.team_id,
+    points: s.points + (pointChanges.get(s.team_id) ?? 0),
+    originalPosition: s.position,
+  }))
+  adjusted.sort(
+    (a, b) => b.points - a.points || a.originalPosition - b.originalPosition
+  )
+  const out = new Map<number, number>()
+  adjusted.forEach((s, i) => out.set(s.team_id, i + 1))
+  return out
+}
+
+function scoreAgainstPositions(
+  predictions: { position: number; team_id: number; is_joker: boolean }[],
+  positionByTeam: Map<number, number>
+): number {
+  let total = 0
+  for (const p of predictions) {
+    const actual = positionByTeam.get(p.team_id)
+    if (actual == null) continue
+    total += pointsFor(p.position, actual, p.is_joker)
+  }
+  return total
 }
 
 export async function getPlayerUpcomingFixtures(
@@ -2156,6 +2185,10 @@ export async function getPlayerUpcomingFixtures(
     .order('starting_at', { ascending: true })
   if (error) throw error
 
+  // Player's CURRENT total score under the actual standings — this is the
+  // baseline we'll subtract from each projected outcome to get a true delta.
+  const currentTotal = scoreAgainstPositions(myPreds, actualByTeamId)
+
   const result: FixtureLookAhead[] = []
   for (const f of rows ?? []) {
     const homeName = teamsById.get(f.home_team_id) ?? 'Unknown'
@@ -2178,19 +2211,30 @@ export async function getPlayerUpcomingFixtures(
         ? pointsFor(awayPred.position, awayActual, awayIsJoker)
         : 0
 
-    // Simplified projection: a win moves the team up 1, a loss moves them down 1.
-    const homeUp = homeActual != null ? Math.max(1, homeActual - 1) : null
-    const homeDown = homeActual != null ? Math.min(20, homeActual + 1) : null
-    const awayUp = awayActual != null ? Math.max(1, awayActual - 1) : null
-    const awayDown = awayActual != null ? Math.min(20, awayActual + 1) : null
-
-    const deltaHomeWin =
-      deltaForMove(homePred?.position ?? null, homeActual, homeUp, homeIsJoker) +
-      deltaForMove(awayPred?.position ?? null, awayActual, awayDown, awayIsJoker)
-    const deltaAwayWin =
-      deltaForMove(homePred?.position ?? null, homeActual, homeDown, homeIsJoker) +
-      deltaForMove(awayPred?.position ?? null, awayActual, awayUp, awayIsJoker)
-    const deltaDraw = 0
+    // Real simulation: take current PL standings, apply the actual point
+    // change (3 for a win, 1 each on a draw), then re-rank all 20 teams.
+    // This handles cases the old ±1 heuristic got wrong — teams already at
+    // the top/bottom of the table, large points gaps, and ripple effects on
+    // other teams the player has predicted.
+    let deltaHomeWin = 0
+    let deltaDraw = 0
+    let deltaAwayWin = 0
+    if (f.home_team_id != null && f.away_team_id != null) {
+      const homeId = f.home_team_id
+      const awayId = f.away_team_id
+      const posHomeWin = projectPositionsByTeam(standings, new Map([[homeId, 3]]))
+      const posAwayWin = projectPositionsByTeam(standings, new Map([[awayId, 3]]))
+      const posDraw = projectPositionsByTeam(
+        standings,
+        new Map([
+          [homeId, 1],
+          [awayId, 1],
+        ])
+      )
+      deltaHomeWin = scoreAgainstPositions(myPreds, posHomeWin) - currentTotal
+      deltaAwayWin = scoreAgainstPositions(myPreds, posAwayWin) - currentTotal
+      deltaDraw = scoreAgainstPositions(myPreds, posDraw) - currentTotal
+    }
 
     let best: 'home_win' | 'draw' | 'away_win' = 'draw'
     let bestDelta = deltaDraw
@@ -2226,7 +2270,15 @@ export async function getPlayerUpcomingFixtures(
       delta_away_win: deltaAwayWin,
       best_outcome: best,
       best_delta: bestDelta,
-      has_stake: bestDelta > 0 || homeIsJoker || awayIsJoker || homeCurrent >= 5 || awayCurrent >= 5,
+      has_stake:
+        bestDelta !== 0 ||
+        deltaHomeWin !== 0 ||
+        deltaAwayWin !== 0 ||
+        deltaDraw !== 0 ||
+        homeIsJoker ||
+        awayIsJoker ||
+        homeCurrent >= 5 ||
+        awayCurrent >= 5,
       live_home_score: f.live_home_score,
       live_away_score: f.live_away_score,
       live_period: f.live_period,
