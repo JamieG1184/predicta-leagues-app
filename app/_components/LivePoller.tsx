@@ -11,14 +11,18 @@ type LiveFixture = {
   result_info: string | null
 }
 
-// Each entry describes one goal observed in this poll. fixture_id is the
-// match's Sportmonks ID so individual row components can flash only when
-// THEIR match scored.
-export type GoalInfo = {
+// One entry per match-highlight in this poll. fixture_id ties the moment to
+// a specific match so individual row components can flash only when THEIR
+// match had the moment.
+export type HighlightType = 'goal' | 'goal_disallowed' | 'penalty' | 'red_card'
+export type Highlight = {
   fixture_id: number
+  type: HighlightType
   description: string
-  home_score: number
-  away_score: number
+  home_score?: number
+  away_score?: number
+  minute?: number | null
+  player_name?: string | null
 }
 
 type LiveResponse = {
@@ -29,13 +33,13 @@ type LiveResponse = {
   next_fixture_at: string | null
   last_synced_at: string
   cached?: boolean
-  goals_scored?: GoalInfo[]
+  highlights?: Highlight[]
 }
 
-// Custom event used to flash a "GOAL!" indicator on both the standings
+// Custom event used to flash a match-moment indicator on both the standings
 // header (small pill) and the matching live fixture row (full banner).
-export type GoalEventDetail = GoalInfo[]
-export const GOAL_EVENT_NAME = 'predicta-goal'
+export type HighlightEventDetail = Highlight[]
+export const HIGHLIGHT_EVENT_NAME = 'predicta-highlight'
 
 const IDLE_INTERVAL_MS = 5 * 60_000
 // Baseline polling during in-play 1st half. Tightened from 60s → 20s so
@@ -66,10 +70,10 @@ export function LivePoller() {
   const [status, setStatus] = useState<LiveResponse | null>(null)
   const [tickAge, setTickAge] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  // Dedup key for goal events: the `last_synced_at` of the response we
-  // already dispatched a goal-event for. Prevents re-firing when the
-  // 30s in-memory cache returns the same goals to the next poll.
-  const lastDispatchedGoalKeyRef = useRef<string | null>(null)
+  // Dedup key for highlight events: the `last_synced_at` of the response we
+  // already dispatched for. Prevents re-firing when the in-memory cache
+  // returns the same highlights to the next poll.
+  const lastDispatchedHighlightKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -84,18 +88,17 @@ export function LivePoller() {
         if (cancelled) return
         setStatus(json)
         setError(null)
-        // Fire a goal event when this response is the FIRST time we see
-        // these goals (i.e. its last_synced_at differs from the last one
-        // we dispatched for).
+        // Fire a highlight event when this response is the FIRST time we
+        // see these highlights (last_synced_at differs from previous fire).
         if (
-          json.goals_scored &&
-          json.goals_scored.length > 0 &&
-          json.last_synced_at !== lastDispatchedGoalKeyRef.current
+          json.highlights &&
+          json.highlights.length > 0 &&
+          json.last_synced_at !== lastDispatchedHighlightKeyRef.current
         ) {
-          lastDispatchedGoalKeyRef.current = json.last_synced_at
+          lastDispatchedHighlightKeyRef.current = json.last_synced_at
           window.dispatchEvent(
-            new CustomEvent<GoalEventDetail>(GOAL_EVENT_NAME, {
-              detail: json.goals_scored,
+            new CustomEvent<HighlightEventDetail>(HIGHLIGHT_EVENT_NAME, {
+              detail: json.highlights,
             })
           )
         }

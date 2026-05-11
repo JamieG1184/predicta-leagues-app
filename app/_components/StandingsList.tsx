@@ -14,10 +14,49 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { GOAL_EVENT_NAME, type GoalEventDetail } from './LivePoller'
+import {
+  HIGHLIGHT_EVENT_NAME,
+  type Highlight,
+  type HighlightEventDetail,
+} from './LivePoller'
 
-// How long the GOAL pill stays on screen after a goal is detected.
-const GOAL_PILL_MS = 12_000
+// How long the highlight pill stays on screen after a match moment fires.
+const HIGHLIGHT_PILL_MS = 12_000
+
+// Compact label + colour palette per highlight type for the header pill.
+const PILL_STYLES: Record<
+  Highlight['type'],
+  { icon: string; label: string; classes: string; dot: string }
+> = {
+  goal: {
+    icon: '⚽',
+    label: 'GOAL',
+    classes:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300',
+    dot: 'bg-emerald-500',
+  },
+  goal_disallowed: {
+    icon: '❌',
+    label: 'GOAL DISALLOWED',
+    classes:
+      'bg-zinc-200 text-zinc-700 dark:bg-zinc-700/40 dark:text-zinc-200',
+    dot: 'bg-zinc-500',
+  },
+  penalty: {
+    icon: '🎯',
+    label: 'PENALTY',
+    classes:
+      'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
+    dot: 'bg-amber-500',
+  },
+  red_card: {
+    icon: '🟥',
+    label: 'RED CARD',
+    classes:
+      'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300',
+    dot: 'bg-rose-500',
+  },
+}
 
 type Row = {
   player: { id: number; display_name: string; invite_code: string }
@@ -58,23 +97,27 @@ export function StandingsList({
   // For the "Xs ago" label we tick now() once a second.
   const [, setTick] = useState(0)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  // GOAL pill — shown for ~12s after the LivePoller dispatches a goal event.
-  // Holds the most recent goal description (e.g. "Tottenham vs Leeds · 1–0").
-  const [goalMessage, setGoalMessage] = useState<string | null>(null)
-  const goalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Match-highlight pill — shown for ~12s after the LivePoller dispatches a
+  // highlight event. Holds the latest highlight so the pill can colour/label
+  // itself appropriately (goal / penalty / red card / goal disallowed).
+  const [activeHighlight, setActiveHighlight] = useState<Highlight | null>(null)
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    function onGoal(e: Event) {
-      const detail = (e as CustomEvent<GoalEventDetail>).detail ?? []
+    function onHighlight(e: Event) {
+      const detail = (e as CustomEvent<HighlightEventDetail>).detail ?? []
       if (detail.length === 0) return
-      setGoalMessage(detail[0]?.description ?? 'Goal!')
-      if (goalTimerRef.current) clearTimeout(goalTimerRef.current)
-      goalTimerRef.current = setTimeout(() => setGoalMessage(null), GOAL_PILL_MS)
+      setActiveHighlight(detail[0])
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current)
+      highlightTimerRef.current = setTimeout(
+        () => setActiveHighlight(null),
+        HIGHLIGHT_PILL_MS
+      )
     }
-    window.addEventListener(GOAL_EVENT_NAME, onGoal)
+    window.addEventListener(HIGHLIGHT_EVENT_NAME, onHighlight)
     return () => {
-      window.removeEventListener(GOAL_EVENT_NAME, onGoal)
-      if (goalTimerRef.current) clearTimeout(goalTimerRef.current)
+      window.removeEventListener(HIGHLIGHT_EVENT_NAME, onHighlight)
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current)
     }
   }, [])
 
@@ -196,17 +239,28 @@ export function StandingsList({
               PROJECTED
             </span>
           )}
-          {goalMessage && (
-            <span
-              title={goalMessage}
-              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
-            >
-              <span className="relative h-1.5 w-1.5">
-                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500 opacity-60" />
-                <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </span>
-              <span>⚽ GOAL · {goalMessage}</span>
-            </span>
+          {activeHighlight && (
+            (() => {
+              const s = PILL_STYLES[activeHighlight.type]
+              return (
+                <span
+                  title={activeHighlight.description}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal ${s.classes}`}
+                >
+                  <span className="relative h-1.5 w-1.5">
+                    <span
+                      className={`absolute inset-0 animate-ping rounded-full opacity-60 ${s.dot}`}
+                    />
+                    <span
+                      className={`relative block h-1.5 w-1.5 rounded-full ${s.dot}`}
+                    />
+                  </span>
+                  <span>
+                    {s.icon} {s.label} · {activeHighlight.description}
+                  </span>
+                </span>
+              )
+            })()
           )}
         </span>
         <ProjectionToggle

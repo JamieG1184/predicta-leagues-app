@@ -1,15 +1,20 @@
 'use client'
 
-// One row in the homepage's Live Now strip. Owns its own "flash GOAL!" state:
-// when the LivePoller dispatches a predicta-goal event for THIS fixture, the
-// row briefly transforms into a pulsing green banner showing the new score,
+// One row in the homepage's Live Now strip. Owns its own "flash highlight"
+// state: when the LivePoller dispatches a predicta-highlight event for
+// THIS fixture, the row briefly transforms into a coloured banner that
+// matches the highlight type (goal / goal disallowed / penalty / red card),
 // then returns to its normal layout.
 
 import { useEffect, useRef, useState } from 'react'
 import { TeamBadge } from './TeamBadge'
-import { GOAL_EVENT_NAME, type GoalEventDetail } from './LivePoller'
+import {
+  HIGHLIGHT_EVENT_NAME,
+  type Highlight,
+  type HighlightEventDetail,
+} from './LivePoller'
 
-const GOAL_FLASH_MS = 3000
+const HIGHLIGHT_FLASH_MS = 3000
 
 type Props = {
   fixture_id: number
@@ -20,6 +25,42 @@ type Props = {
   period_label: string
 }
 
+// Visual configuration per highlight type — kept colocated with the
+// rendering so adding a new type is a single declarative change.
+const HIGHLIGHT_STYLES: Record<
+  Highlight['type'],
+  { icon: string; label: string; container: string; chip: string }
+> = {
+  goal: {
+    icon: '⚽',
+    label: 'GOAL!',
+    container:
+      'border-emerald-500 bg-emerald-100 text-emerald-800 dark:border-emerald-400 dark:bg-emerald-500/30 dark:text-emerald-200',
+    chip: 'bg-emerald-200 dark:bg-emerald-700/50',
+  },
+  goal_disallowed: {
+    icon: '❌',
+    label: 'GOAL DISALLOWED · VAR',
+    container:
+      'border-zinc-400 bg-zinc-100 text-zinc-700 dark:border-zinc-500 dark:bg-zinc-700/40 dark:text-zinc-200',
+    chip: 'bg-zinc-200 dark:bg-zinc-600/60',
+  },
+  penalty: {
+    icon: '🎯',
+    label: 'PENALTY!',
+    container:
+      'border-amber-500 bg-amber-100 text-amber-800 dark:border-amber-400 dark:bg-amber-500/30 dark:text-amber-200',
+    chip: 'bg-amber-200 dark:bg-amber-700/50',
+  },
+  red_card: {
+    icon: '🟥',
+    label: 'RED CARD!',
+    container:
+      'border-rose-500 bg-rose-100 text-rose-800 dark:border-rose-400 dark:bg-rose-500/30 dark:text-rose-200',
+    chip: 'bg-rose-200 dark:bg-rose-700/50',
+  },
+}
+
 export function LiveFixtureRow({
   fixture_id,
   home_team_name,
@@ -28,43 +69,48 @@ export function LiveFixtureRow({
   live_away_score,
   period_label,
 }: Props) {
-  // While `flashing` is true the row replaces its normal content with the
-  // GOAL banner. flashScore stores the score AT THE MOMENT OF THE GOAL so we
-  // can still show the score even if the row's props haven't yet been
-  // refreshed by router.refresh().
-  const [flashing, setFlashing] = useState(false)
-  const [flashScore, setFlashScore] = useState<{ home: number; away: number } | null>(null)
+  // While `activeFlash` is set the row replaces its normal content with the
+  // highlight banner. We keep the full highlight payload so the banner can
+  // render the right colour + score even if the row's props haven't yet
+  // been refreshed via router.refresh().
+  const [activeFlash, setActiveFlash] = useState<Highlight | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    function onGoal(e: Event) {
-      const detail = (e as CustomEvent<GoalEventDetail>).detail ?? []
-      const match = detail.find((g) => g.fixture_id === fixture_id)
+    function onHighlight(e: Event) {
+      const detail = (e as CustomEvent<HighlightEventDetail>).detail ?? []
+      const match = detail.find((h) => h.fixture_id === fixture_id)
       if (!match) return
-      setFlashScore({ home: match.home_score, away: match.away_score })
-      setFlashing(true)
+      setActiveFlash(match)
       if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setFlashing(false), GOAL_FLASH_MS)
+      timerRef.current = setTimeout(() => setActiveFlash(null), HIGHLIGHT_FLASH_MS)
     }
-    window.addEventListener(GOAL_EVENT_NAME, onGoal)
+    window.addEventListener(HIGHLIGHT_EVENT_NAME, onHighlight)
     return () => {
-      window.removeEventListener(GOAL_EVENT_NAME, onGoal)
+      window.removeEventListener(HIGHLIGHT_EVENT_NAME, onHighlight)
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [fixture_id])
 
   const hasScore = live_home_score != null && live_away_score != null
 
-  if (flashing && flashScore) {
+  if (activeFlash) {
+    const s = HIGHLIGHT_STYLES[activeFlash.type]
+    const showScore =
+      activeFlash.home_score != null && activeFlash.away_score != null
     return (
-      <div className="flex animate-pulse items-center justify-center gap-3 rounded-xl border-2 border-emerald-500 bg-emerald-100 p-4 text-sm font-bold uppercase tracking-wider text-emerald-800 dark:border-emerald-400 dark:bg-emerald-500/30 dark:text-emerald-200">
-        <span className="text-2xl">⚽</span>
-        <span>GOAL!</span>
+      <div
+        className={`flex animate-pulse items-center justify-center gap-3 rounded-xl border-2 p-4 text-sm font-bold uppercase tracking-wider ${s.container}`}
+      >
+        <span className="text-2xl">{s.icon}</span>
+        <span>{s.label}</span>
         <span className="hidden sm:inline">·</span>
         <span className="hidden font-medium normal-case sm:inline">{home_team_name}</span>
-        <span className="rounded-md bg-emerald-200 px-2.5 py-1 text-base font-bold tabular-nums dark:bg-emerald-700/50">
-          {flashScore.home} – {flashScore.away}
-        </span>
+        {showScore && (
+          <span className={`rounded-md px-2.5 py-1 text-base font-bold tabular-nums ${s.chip}`}>
+            {activeFlash.home_score} – {activeFlash.away_score}
+          </span>
+        )}
         <span className="hidden font-medium normal-case sm:inline">{away_team_name}</span>
       </div>
     )

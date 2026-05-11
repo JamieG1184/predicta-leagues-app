@@ -26,6 +26,15 @@ let lastInWindowAt: number | null = null
 let settlingSyncDone = false
 const SETTLING_WINDOW_MS = 30 * 60 * 1000 // 30 minutes
 
+// In-memory tracking of Sportmonks event IDs we've already dispatched as
+// match-highlight notifications, keyed by fixture_id. Prevents duplicate
+// "RED CARD!" / "PENALTY!" banners on subsequent polls of the same fixture.
+// `initializedFixtures` lets us baseline (record without dispatching) the
+// very first time we see a fixture, so the app doesn't spam every existing
+// event in a match that started before we booted up.
+const seenEventIds = new Map<number, Set<number>>()
+const initializedFixtures = new Set<number>()
+
 async function sportmonks(path: string) {
   const sep = path.includes('?') ? '&' : '?'
   const url = `${SPORTMONKS_BASE}${path}${sep}api_token=${process.env.SPORTMONKS_API_TOKEN}`
@@ -224,13 +233,18 @@ export async function GET() {
         .map((t: any): [number, number] => [t.sportmonks_id as number, t.id])
     )
 
-    // 1. Fetch in-play live matches with scores include (gracefully degrades
-    //    if the include is restricted on our plan)
+    // 1. Fetch in-play live matches with scores + events includes. Events
+    //    let us flash banners for penalties, red cards, etc. Gracefully
+    //    degrade if either include is restricted on our Sportmonks plan.
     let inplay
     try {
-      inplay = await sportmonks(`/livescores/inplay?include=scores`)
+      inplay = await sportmonks(`/livescores/inplay?include=scores;events`)
     } catch {
-      inplay = await sportmonks(`/livescores/inplay`)
+      try {
+        inplay = await sportmonks(`/livescores/inplay?include=scores`)
+      } catch {
+        inplay = await sportmonks(`/livescores/inplay`)
+      }
     }
     const plLive = (inplay.data ?? []).filter(
       (f: any) => f.league_id === PL_LEAGUE_ID && f.season_id === PL_SEASON_ID
@@ -284,6 +298,17 @@ export async function GET() {
       return { home, away }
     }
 
+    type SportmonksEvent = {
+      id: number
+      type_id?: number
+      type?: { id?: number; name?: string; code?: string }
+      code?: string
+      minute?: number | null
+      rescinded?: boolean | null
+      player_name?: string | null
+      participant_id?: number | null
+    }
+
     type LiveFixture = {
       id: number
       name: string
@@ -293,6 +318,7 @@ export async function GET() {
       result_info: string | null
       home_score: number | null
       away_score: number | null
+      events: SportmonksEvent[]
     }
     const liveFixtures: LiveFixture[] = plLive.map((f: any) => {
       const { home, away } = extractScores(f)
@@ -305,6 +331,7 @@ export async function GET() {
         result_info: f.result_info,
         home_score: home,
         away_score: away,
+        events: Array.isArray(f.events) ? (f.events as SportmonksEvent[]) : [],
       }
     })
 
@@ -315,16 +342,23 @@ export async function GET() {
     // stable during in-play matches, even if Sportmonks reports interim
     // standings updates.
     let ftTransitionThisPoll = false
-    // Track goals (live score increases) in this poll so the UI can flash a
-    // "GOAL!" pill on the homepage standings AND flash the matching row in
-    // the Live Now strip. fixture_id lets the per-row component identify
-    // which match scored.
-    const goalsScored: {
+    // Unified match-highlight feed for this poll. Each entry is a "moment"
+    // worth flashing in the UI (Live Now strip row + standings header pill).
+    // Types we currently surface:
+    //   goal              — live score increased (existing)
+    //   goal_disallowed   — live score DECREASED (VAR overturn)
+    //   penalty           — new PENALTY event from Sportmonks
+    //   red_card          — new REDCARD or YELLOWREDCARD (2nd yellow) event
+    type Highlight = {
       fixture_id: number
+      type: 'goal' | 'goal_disallowed' | 'penalty' | 'red_card'
       description: string
-      home_score: number
-      away_score: number
-    }[] = []
+      home_score?: number
+      away_score?: number
+      minute?: number | null
+      player_name?: string | null
+    }
+    const highlights: Highlight[] = []
 
     if (liveFixtures.length > 0) {
       const ids = liveFixtures.map((f) => f.id)
@@ -349,23 +383,79 @@ export async function GET() {
         if (f.state_id === 5 && (prev?.state_id ?? null) !== 5) {
           ftTransitionThisPoll = true
         }
-        // Goal detection: a score number went up since the last poll. Only
-        // fires when we have a previous record — first-time fixture sightings
-        // don't count as goals because we don't know the prior score.
+        // Score-derived highlights: GOAL (score went up) or GOAL DISALLOWED
+        // via VAR (score went DOWN — only happens when a previously-counted
+        // goal is overturned). Only fires when we have a previous record.
         if (prev) {
           const prevH = prev.live_home_score ?? 0
           const prevA = prev.live_away_score ?? 0
           const newH = f.home_score ?? 0
           const newA = f.away_score ?? 0
           if ((newH > prevH || newA > prevA) && f.name) {
-            goalsScored.push({
+            highlights.push({
               fixture_id: f.id,
+              type: 'goal',
               description: `${f.name} · ${newH}–${newA}`,
+              home_score: newH,
+              away_score: newA,
+            })
+          } else if ((newH < prevH || newA < prevA) && f.name) {
+            highlights.push({
+              fixture_id: f.id,
+              type: 'goal_disallowed',
+              description: `${f.name} · now ${newH}–${newA}`,
               home_score: newH,
               away_score: newA,
             })
           }
         }
+
+        // Event-derived highlights: penalty awarded, red card. Compare
+        // current event IDs against the in-memory seen-set; new ones get
+        // dispatched. First time we see a fixture we BASELINE (record
+        // without firing) so older events from earlier in the match don't
+        // re-fire when our serverless instance cold-starts.
+        const seen = seenEventIds.get(f.id) ?? new Set<number>()
+        const baseline = !initializedFixtures.has(f.id)
+        for (const ev of f.events) {
+          if (!ev || typeof ev.id !== 'number') continue
+          if (seen.has(ev.id)) continue
+          // Always record we've seen this event so we don't refire later.
+          seen.add(ev.id)
+          // Skip baselining and explicitly rescinded events.
+          if (baseline) continue
+          if (ev.rescinded === true) continue
+
+          const codeRaw =
+            (ev.type?.code ?? ev.code ?? ev.type?.name ?? '').toString().toUpperCase()
+          const minute = ev.minute ?? null
+          const player = ev.player_name ?? null
+          // Detect penalty awarded. Sportmonks may emit either "PENALTY"
+          // (awarded) or a "PEN" variant; we accept the common forms.
+          if (codeRaw === 'PENALTY' || codeRaw === 'PEN_AWARDED') {
+            highlights.push({
+              fixture_id: f.id,
+              type: 'penalty',
+              description: player
+                ? `Penalty · ${f.name} · ${player}`
+                : `Penalty · ${f.name}`,
+              minute,
+              player_name: player,
+            })
+          } else if (codeRaw === 'REDCARD' || codeRaw === 'YELLOWREDCARD') {
+            highlights.push({
+              fixture_id: f.id,
+              type: 'red_card',
+              description: player
+                ? `Red card · ${f.name} · ${player}`
+                : `Red card · ${f.name}`,
+              minute,
+              player_name: player,
+            })
+          }
+        }
+        seenEventIds.set(f.id, seen)
+        initializedFixtures.add(f.id)
         await supabaseServer
           .from('fixtures')
           .update({
@@ -430,7 +520,7 @@ export async function GET() {
       next_fixture_at: window.next_fixture_at,
       last_synced_at: new Date().toISOString(),
       ft_transition: ftTransitionThisPoll,
-      goals_scored: goalsScored,
+      highlights,
     }
     lastSyncAt = now
 
