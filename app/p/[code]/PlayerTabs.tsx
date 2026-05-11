@@ -310,10 +310,11 @@ function FixturesTab({ fixtures }: { fixtures: FixtureLookAhead[] }) {
           <FixtureCard key={f.fixture_id} fixture={f} />
         ))}
       </div>
-      <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-500">
-        Recommended outcomes use a simplified ±1 model. Real-world position
-        changes also depend on points and goal difference, so this is a
-        directional guide rather than a perfect projection.
+      <p className="mt-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+        Each card shows the teams in the match, where you predicted them, and
+        where they sit in the actual table right now. Predicting how a result
+        will move your score is genuinely hard — too many other matches happen
+        the same week — so we leave that read to you.
       </p>
     </section>
   )
@@ -332,13 +333,6 @@ function FixtureCard({ fixture }: { fixture: FixtureLookAhead }) {
     hour12: false,
   })
 
-  const bestLabel =
-    fixture.best_outcome === 'home_win'
-      ? `${fixture.home.team_name} win`
-      : fixture.best_outcome === 'away_win'
-      ? `${fixture.away.team_name} win`
-      : 'Draw'
-  const bestSign = fixture.best_delta > 0 ? '+' : ''
   const isLive = fixture.live_period && fixture.live_period !== 'FT'
 
   return (
@@ -346,9 +340,9 @@ function FixtureCard({ fixture }: { fixture: FixtureLookAhead }) {
       className={
         isLive
           ? 'rounded-xl border-2 border-emerald-400 bg-white p-4 dark:border-emerald-500/60 dark:bg-zinc-900'
-          : fixture.has_stake
-          ? 'rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900'
-          : 'rounded-xl border border-zinc-200 bg-white/60 p-4 dark:border-zinc-800 dark:bg-zinc-900/60'
+          : fixture.has_joker
+            ? 'rounded-xl border border-amber-300 bg-amber-50/30 p-4 dark:border-amber-500/40 dark:bg-amber-500/5'
+            : 'rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900'
       }
     >
       <div className="mb-3 flex items-baseline justify-between text-xs">
@@ -370,27 +364,16 @@ function FixtureCard({ fixture }: { fixture: FixtureLookAhead }) {
             {dateStr} · {timeStr}
           </span>
         )}
-        <span
-          className={
-            fixture.best_delta > 0
-              ? 'rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-              : 'rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
-          }
-        >
-          Best: {bestLabel} {bestSign}
-          {fixture.best_delta} pts
-        </span>
+        {fixture.has_joker && !isLive && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+            ⭐ Joker match
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <FixtureSideCell side={fixture.home} label="Home" />
         <FixtureSideCell side={fixture.away} label="Away" />
-      </div>
-
-      <div className="mt-3 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-500">
-        <DeltaPill label="Home win" value={fixture.delta_home_win} />
-        <DeltaPill label="Draw" value={fixture.delta_draw} />
-        <DeltaPill label="Away win" value={fixture.delta_away_win} />
       </div>
     </div>
   )
@@ -420,39 +403,10 @@ function FixtureSideCell({
           </span>
         )}
       </div>
-      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-        Actual #{side.actual_position ?? '—'} · Predicted #{side.predicted_position ?? '—'} ·{' '}
-        <span
-          className={
-            side.current_points > 0
-              ? 'font-semibold text-emerald-700 dark:text-emerald-400'
-              : 'text-zinc-400'
-          }
-        >
-          {side.current_points} pts
-        </span>
+      <div className="mt-1 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
+        You predicted #{side.predicted_position ?? '—'} · league position #{side.actual_position ?? '—'}
       </div>
     </div>
-  )
-}
-
-function DeltaPill({ label, value }: { label: string; value: number }) {
-  return (
-    <span>
-      {label}{' '}
-      <span
-        className={
-          value > 0
-            ? 'font-semibold text-emerald-700 dark:text-emerald-400'
-            : value < 0
-            ? 'font-semibold text-rose-700 dark:text-rose-400'
-            : 'font-semibold'
-        }
-      >
-        {value > 0 ? '+' : ''}
-        {value}
-      </span>
-    </span>
   )
 }
 

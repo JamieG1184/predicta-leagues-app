@@ -2096,12 +2096,12 @@ export type FixtureLookAhead = {
   fixture_name: string
   home: FixtureSide
   away: FixtureSide
-  delta_home_win: number
-  delta_draw: number
-  delta_away_win: number
-  best_outcome: 'home_win' | 'draw' | 'away_win'
-  best_delta: number
-  has_stake: boolean
+  // True when the player's Joker team is in this fixture — used by the UI to
+  // visually emphasise it. We intentionally don't try to predict outcomes
+  // here: a single-fixture simulation gives unreliable numbers (ignores
+  // simultaneous matches, GD tiebreakers, and chains poorly across the
+  // remaining schedule). Players get the facts and form their own view.
+  has_joker: boolean
   live_home_score: number | null
   live_away_score: number | null
   live_period: string | null
@@ -2114,44 +2114,11 @@ function pointsFor(predictedPos: number, actualPos: number, isJoker: boolean) {
   return base * (isJoker ? 2 : 1)
 }
 
-/**
- * Project new PL positions given a set of point-changes layered onto the
- * current actual standings. Re-ranks all 20 teams using current points +
- * deltas. Tiebreaker is original position (preserves whatever GD ordering
- * was in place pre-projection — actual_standings doesn't track GD).
- *
- * Used by the fixture look-ahead to compute accurate "what if this match
- * ends X" deltas, instead of the old ±1 heuristic.
- */
-function projectPositionsByTeam(
-  baseStandings: { team_id: number; position: number; points: number }[],
-  pointChanges: Map<number, number>
-): Map<number, number> {
-  const adjusted = baseStandings.map((s) => ({
-    team_id: s.team_id,
-    points: s.points + (pointChanges.get(s.team_id) ?? 0),
-    originalPosition: s.position,
-  }))
-  adjusted.sort(
-    (a, b) => b.points - a.points || a.originalPosition - b.originalPosition
-  )
-  const out = new Map<number, number>()
-  adjusted.forEach((s, i) => out.set(s.team_id, i + 1))
-  return out
-}
-
-function scoreAgainstPositions(
-  predictions: { position: number; team_id: number; is_joker: boolean }[],
-  positionByTeam: Map<number, number>
-): number {
-  let total = 0
-  for (const p of predictions) {
-    const actual = positionByTeam.get(p.team_id)
-    if (actual == null) continue
-    total += pointsFor(p.position, actual, p.is_joker)
-  }
-  return total
-}
+// (Single-fixture outcome simulation removed — see commit history. It produced
+// unreliable "+N pts" recommendations because it couldn't account for
+// simultaneous matches, goal-difference tiebreakers, or chained future
+// results. The Fixtures tab now surfaces facts only: each team's predicted vs
+// actual position plus a Joker flag, leaving interpretation to the player.)
 
 export async function getPlayerUpcomingFixtures(
   inviteCode: string,
@@ -2185,10 +2152,6 @@ export async function getPlayerUpcomingFixtures(
     .order('starting_at', { ascending: true })
   if (error) throw error
 
-  // Player's CURRENT total score under the actual standings — this is the
-  // baseline we'll subtract from each projected outcome to get a true delta.
-  const currentTotal = scoreAgainstPositions(myPreds, actualByTeamId)
-
   const result: FixtureLookAhead[] = []
   for (const f of rows ?? []) {
     const homeName = teamsById.get(f.home_team_id) ?? 'Unknown'
@@ -2211,42 +2174,6 @@ export async function getPlayerUpcomingFixtures(
         ? pointsFor(awayPred.position, awayActual, awayIsJoker)
         : 0
 
-    // Real simulation: take current PL standings, apply the actual point
-    // change (3 for a win, 1 each on a draw), then re-rank all 20 teams.
-    // This handles cases the old ±1 heuristic got wrong — teams already at
-    // the top/bottom of the table, large points gaps, and ripple effects on
-    // other teams the player has predicted.
-    let deltaHomeWin = 0
-    let deltaDraw = 0
-    let deltaAwayWin = 0
-    if (f.home_team_id != null && f.away_team_id != null) {
-      const homeId = f.home_team_id
-      const awayId = f.away_team_id
-      const posHomeWin = projectPositionsByTeam(standings, new Map([[homeId, 3]]))
-      const posAwayWin = projectPositionsByTeam(standings, new Map([[awayId, 3]]))
-      const posDraw = projectPositionsByTeam(
-        standings,
-        new Map([
-          [homeId, 1],
-          [awayId, 1],
-        ])
-      )
-      deltaHomeWin = scoreAgainstPositions(myPreds, posHomeWin) - currentTotal
-      deltaAwayWin = scoreAgainstPositions(myPreds, posAwayWin) - currentTotal
-      deltaDraw = scoreAgainstPositions(myPreds, posDraw) - currentTotal
-    }
-
-    let best: 'home_win' | 'draw' | 'away_win' = 'draw'
-    let bestDelta = deltaDraw
-    if (deltaHomeWin > bestDelta) {
-      best = 'home_win'
-      bestDelta = deltaHomeWin
-    }
-    if (deltaAwayWin > bestDelta) {
-      best = 'away_win'
-      bestDelta = deltaAwayWin
-    }
-
     result.push({
       fixture_id: f.id,
       starting_at: f.starting_at,
@@ -2265,20 +2192,7 @@ export async function getPlayerUpcomingFixtures(
         current_points: awayCurrent,
         is_joker: awayIsJoker,
       },
-      delta_home_win: deltaHomeWin,
-      delta_draw: deltaDraw,
-      delta_away_win: deltaAwayWin,
-      best_outcome: best,
-      best_delta: bestDelta,
-      has_stake:
-        bestDelta !== 0 ||
-        deltaHomeWin !== 0 ||
-        deltaAwayWin !== 0 ||
-        deltaDraw !== 0 ||
-        homeIsJoker ||
-        awayIsJoker ||
-        homeCurrent >= 5 ||
-        awayCurrent >= 5,
+      has_joker: homeIsJoker || awayIsJoker,
       live_home_score: f.live_home_score,
       live_away_score: f.live_away_score,
       live_period: f.live_period,
