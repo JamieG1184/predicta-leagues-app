@@ -308,6 +308,12 @@ export async function GET() {
 
     // 1b. Update fixtures table with live data and detect changes
     let liveScoresChanged = false
+    // Track FT transitions in this poll — only fixtures that JUST finished
+    // should trigger a standings sync. This keeps the static standings
+    // stable during in-play matches, even if Sportmonks reports interim
+    // standings updates.
+    let ftTransitionThisPoll = false
+
     if (liveFixtures.length > 0) {
       const ids = liveFixtures.map((f) => f.id)
       const { data: existing } = await supabaseServer
@@ -327,6 +333,10 @@ export async function GET() {
           prev.live_period !== f.period ||
           prev.state_id !== f.state_id
         if (changed) liveScoresChanged = true
+        // FT transition: fixture is at state 5 now, but wasn't before.
+        if (f.state_id === 5 && (prev?.state_id ?? null) !== 5) {
+          ftTransitionThisPoll = true
+        }
         await supabaseServer
           .from('fixtures')
           .update({
@@ -341,7 +351,9 @@ export async function GET() {
     }
 
     // 1c. Clear stale live data from any fixture that's no longer in-play
-    //     (i.e. it has live_period set but is no longer in our plLive list)
+    //     (i.e. it has live_period set but is no longer in our plLive list).
+    //     Stale fixtures are the strongest signal of an FT transition — the
+    //     match was live, now it's gone from the inplay endpoint.
     const liveIds = new Set(liveFixtures.map((f) => f.id))
     const { data: lingering } = await supabaseServer
       .from('fixtures')
@@ -364,23 +376,31 @@ export async function GET() {
           stale.map((r: any) => r.sportmonks_id)
         )
       liveScoresChanged = true
+      ftTransitionThisPoll = true
     }
 
-    // 2. Sync standings (only updates DB if changed)
-    const sync = await syncStandings(seasonId, teamIdBySportmonks)
-
-    // 3. If standings changed, recalculate scores
-    if (sync.standingsChanged) {
-      await recalculateAllScores('live_sync')
+    // 2. Sync standings ONLY when at least one fixture has just finished.
+    //    During in-play polling we deliberately leave the standings alone so
+    //    the "static" leaderboard reflects completed matches only. (If we
+    //    miss a transition due to a serverless cold start, the settling-sync
+    //    in the idle path picks it up next time the route goes idle.)
+    let standingsChanged = false
+    if (ftTransitionThisPoll) {
+      const sync = await syncStandings(seasonId, teamIdBySportmonks)
+      standingsChanged = sync.standingsChanged
+      if (standingsChanged) {
+        await recalculateAllScores('live_sync')
+      }
     }
 
     cachedResponse = {
       live_fixtures: liveFixtures,
       has_live_matches: liveFixtures.length > 0,
-      has_updates: sync.standingsChanged || liveScoresChanged,
+      has_updates: standingsChanged || liveScoresChanged,
       idle: false,
       next_fixture_at: window.next_fixture_at,
       last_synced_at: new Date().toISOString(),
+      ft_transition: ftTransitionThisPoll,
     }
     lastSyncAt = now
 
