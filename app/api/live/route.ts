@@ -316,8 +316,15 @@ export async function GET() {
     // standings updates.
     let ftTransitionThisPoll = false
     // Track goals (live score increases) in this poll so the UI can flash a
-    // "GOAL!" pill on the homepage standings.
-    const goalsScored: string[] = []
+    // "GOAL!" pill on the homepage standings AND flash the matching row in
+    // the Live Now strip. fixture_id lets the per-row component identify
+    // which match scored.
+    const goalsScored: {
+      fixture_id: number
+      description: string
+      home_score: number
+      away_score: number
+    }[] = []
 
     if (liveFixtures.length > 0) {
       const ids = liveFixtures.map((f) => f.id)
@@ -351,7 +358,12 @@ export async function GET() {
           const newH = f.home_score ?? 0
           const newA = f.away_score ?? 0
           if ((newH > prevH || newA > prevA) && f.name) {
-            goalsScored.push(`${f.name} · ${newH}–${newA}`)
+            goalsScored.push({
+              fixture_id: f.id,
+              description: `${f.name} · ${newH}–${newA}`,
+              home_score: newH,
+              away_score: newA,
+            })
           }
         }
         await supabaseServer

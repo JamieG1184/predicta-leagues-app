@@ -67,7 +67,7 @@ export function StandingsList({
     function onGoal(e: Event) {
       const detail = (e as CustomEvent<GoalEventDetail>).detail ?? []
       if (detail.length === 0) return
-      setGoalMessage(detail[0] ?? 'Goal!')
+      setGoalMessage(detail[0]?.description ?? 'Goal!')
       if (goalTimerRef.current) clearTimeout(goalTimerRef.current)
       goalTimerRef.current = setTimeout(() => setGoalMessage(null), GOAL_PILL_MS)
     }

@@ -11,6 +11,16 @@ type LiveFixture = {
   result_info: string | null
 }
 
+// Each entry describes one goal observed in this poll. fixture_id is the
+// match's Sportmonks ID so individual row components can flash only when
+// THEIR match scored.
+export type GoalInfo = {
+  fixture_id: number
+  description: string
+  home_score: number
+  away_score: number
+}
+
 type LiveResponse = {
   live_fixtures: LiveFixture[]
   has_live_matches: boolean
@@ -19,12 +29,12 @@ type LiveResponse = {
   next_fixture_at: string | null
   last_synced_at: string
   cached?: boolean
-  goals_scored?: string[]
+  goals_scored?: GoalInfo[]
 }
 
-// Custom event used to flash a "GOAL!" pill in the StandingsList component.
-// Detail payload is the array of goal description strings from /api/live.
-export type GoalEventDetail = string[]
+// Custom event used to flash a "GOAL!" indicator on both the standings
+// header (small pill) and the matching live fixture row (full banner).
+export type GoalEventDetail = GoalInfo[]
 export const GOAL_EVENT_NAME = 'predicta-goal'
 
 const IDLE_INTERVAL_MS = 5 * 60_000
