@@ -15,6 +15,15 @@ let lastSyncAt = 0
 let cachedResponse: any = null
 const CACHE_MS = 30_000
 
+// State for the "settling sync" — when the route transitions from in-window
+// to idle, we force one extra standings sync to catch the Sportmonks lag
+// between match-finish and standings-updated. Without this, a match that
+// finishes RIGHT as the lookback closes can leave our standings stale until
+// someone manually re-syncs.
+let lastInWindowAt: number | null = null
+let settlingSyncDone = false
+const SETTLING_WINDOW_MS = 30 * 60 * 1000 // 30 minutes
+
 async function sportmonks(path: string) {
   const sep = path.includes('?') ? '&' : '?'
   const url = `${SPORTMONKS_BASE}${path}${sep}api_token=${process.env.SPORTMONKS_API_TOKEN}`
@@ -39,8 +48,12 @@ async function getCurrentSeasonId(): Promise<number> {
  */
 async function getMatchWindow(seasonId: number) {
   const now = new Date()
-  // Look back 3 hours (catches in-play matches that might extend with stoppage / extra time)
-  const lookback = new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString()
+  // Look back 6 hours. Buffer for stoppage / extra time / Sportmonks lag
+  // between match-finish and standings-updated. (Previously 3h, but that was
+  // tight — Sportmonks sometimes takes 5–10 min after FT to refresh
+  // standings, and we want the window to stay "in-play" long enough for the
+  // standings sync to catch the update.)
+  const lookback = new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString()
   // Look forward 30 minutes (catches fixtures about to kick off)
   const lookforward = new Date(now.getTime() + 30 * 60 * 1000).toISOString()
 
@@ -155,17 +168,50 @@ export async function GET() {
           )
         cleared = lingering.length
       }
+
+      // Settling sync: if we were in-window recently (matches just finished),
+      // do ONE extra standings sync to catch any post-FT lag from Sportmonks.
+      // Skip if we've already done it this idle period.
+      let settlingSynced = false
+      let settlingChanged = false
+      const recentlyInWindow =
+        lastInWindowAt != null && Date.now() - lastInWindowAt < SETTLING_WINDOW_MS
+      if (recentlyInWindow && !settlingSyncDone) {
+        const { data: teams } = await supabaseServer
+          .from('teams')
+          .select('id, sportmonks_id')
+        const teamIdBySportmonks = new Map(
+          (teams ?? [])
+            .filter((t: any) => t.sportmonks_id != null)
+            .map((t: any): [number, number] => [t.sportmonks_id as number, t.id])
+        )
+        const settling = await syncStandings(seasonId, teamIdBySportmonks)
+        settlingSynced = true
+        settlingChanged = settling.standingsChanged
+        if (settlingChanged) {
+          await recalculateAllScores('settling_sync')
+        }
+        settlingSyncDone = true
+      }
+
       cachedResponse = {
         live_fixtures: [],
         has_live_matches: false,
-        has_updates: cleared > 0,
+        has_updates: cleared > 0 || settlingChanged,
         idle: true,
         next_fixture_at: window.next_fixture_at,
         last_synced_at: new Date().toISOString(),
+        settling_synced: settlingSynced,
+        settling_changed: settlingChanged,
       }
       lastSyncAt = now
       return NextResponse.json({ ...cachedResponse, cached: false })
     }
+
+    // We're in-window — record the timestamp and arm the settling-sync flag
+    // for whenever we next transition back to idle.
+    lastInWindowAt = Date.now()
+    settlingSyncDone = false
 
     const { data: teams } = await supabaseServer
       .from('teams')

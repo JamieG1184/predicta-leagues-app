@@ -155,10 +155,16 @@ export function StandingsList({
   return (
     <section>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-y-2 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
-        <span className="flex items-center gap-2">
+        <span className="flex flex-wrap items-center gap-2">
           Standings
           <span className="text-zinc-400 dark:text-zinc-600">·</span>
           <span>{initialRows.length} players</span>
+          {!showProjected && lastUpdateLabel && (
+            <>
+              <span className="text-zinc-400 dark:text-zinc-600">·</span>
+              <span>Updated {lastUpdateLabel}</span>
+            </>
+          )}
           {showProjected && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
@@ -278,15 +284,14 @@ export function StandingsList({
       </ol>
 
       {/*
-        Footer disclaimer: in static mode, tell players exactly when the
-        scores last updated and what triggers a refresh. Hidden in projected
-        mode because the per-row "Updated Xs ago" already conveys freshness.
+        Footer disclaimer: tell players what triggers a refresh. Timestamp
+        now sits in the section header above, so we just keep the
+        behaviour note. Hidden in projected mode because freshness is
+        already conveyed by the "Updated Xs ago" indicator on the toggle.
       */}
       {!showProjected && (
         <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-500">
-          {lastUpdateLabel
-            ? `Last updated ${lastUpdateLabel} · standings refresh automatically after each match completes.`
-            : 'Standings refresh automatically after each match completes.'}
+          Standings refresh automatically after each match completes.
         </p>
       )}
     </section>
