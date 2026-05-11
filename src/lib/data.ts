@@ -2088,6 +2088,11 @@ export type FixtureSide = {
   predicted_position: number | null
   current_points: number
   is_joker: boolean
+  // Points-gap: team's actual PL points minus the PL points held by whoever
+  // is at the player's predicted position right now. Positive = team is
+  // ahead of the predicted spot. Negative = behind. Null when predicted ==
+  // actual (exact hit, gap is 0 by definition) or data is unavailable.
+  points_gap: number | null
 }
 
 export type FixtureLookAhead = {
@@ -2137,6 +2142,25 @@ export async function getPlayerUpcomingFixtures(
   const myPreds = predictions.filter((p) => p.player_id === player.id)
   const predByTeamId = new Map(myPreds.map((p) => [p.team_id, p]))
   const actualByTeamId = new Map(standings.map((s) => [s.team_id, s.position]))
+  // Lookups for the points-gap calculation below.
+  const pointsByTeamId = new Map(standings.map((s) => [s.team_id, s.points]))
+  const pointsAtPosition = new Map(standings.map((s) => [s.position, s.points]))
+
+  // Helper: how many points is this team away from whoever currently sits
+  // at the predicted position? Positive = team is ahead, negative = behind.
+  // Returns null when the prediction is already exact or data is missing.
+  function computeGap(
+    teamId: number | null,
+    actualPos: number | null,
+    predictedPos: number | null
+  ): number | null {
+    if (teamId == null || actualPos == null || predictedPos == null) return null
+    if (actualPos === predictedPos) return null
+    const teamPts = pointsByTeamId.get(teamId)
+    const targetPts = pointsAtPosition.get(predictedPos)
+    if (teamPts == null || targetPts == null) return null
+    return teamPts - targetPts
+  }
 
   // Pull upcoming fixtures from our local DB
   const now = new Date()
@@ -2184,6 +2208,7 @@ export async function getPlayerUpcomingFixtures(
         predicted_position: homePred?.position ?? null,
         current_points: homeCurrent,
         is_joker: homeIsJoker,
+        points_gap: computeGap(f.home_team_id ?? null, homeActual, homePred?.position ?? null),
       },
       away: {
         team_name: awayName,
@@ -2191,6 +2216,7 @@ export async function getPlayerUpcomingFixtures(
         predicted_position: awayPred?.position ?? null,
         current_points: awayCurrent,
         is_joker: awayIsJoker,
+        points_gap: computeGap(f.away_team_id ?? null, awayActual, awayPred?.position ?? null),
       },
       has_joker: homeIsJoker || awayIsJoker,
       live_home_score: f.live_home_score,

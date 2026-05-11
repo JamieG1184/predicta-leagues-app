@@ -76,7 +76,13 @@ export function PlayerTabs(props: Props) {
         </TabButton>
       </div>
 
-      {tab === 'prediction' && <PredictionTab scored={props.scored} total={props.total} />}
+      {tab === 'prediction' && (
+        <PredictionTab
+          scored={props.scored}
+          total={props.total}
+          table={props.current_table}
+        />
+      )}
       {tab === 'original' && showOriginalTab && (
         <OriginalTab
           original={props.original_predictions!}
@@ -84,7 +90,9 @@ export function PlayerTabs(props: Props) {
         />
       )}
       {tab === 'fixtures' && <FixturesTab fixtures={props.fixtures} />}
-      {tab === 'pl_table' && <PLTableTab table={props.current_table} />}
+      {tab === 'pl_table' && (
+        <PLTableTab table={props.current_table} scored={props.scored} />
+      )}
       {tab === 'scenario' && (
         <ScenarioBuilder
           player_id={props.scenario_player_id}
@@ -133,10 +141,22 @@ function TabButton({
 function PredictionTab({
   scored,
   total,
+  table,
 }: {
   scored: ScoredPrediction[]
   total: number
+  table: { position: number; team_name: string; points: number }[]
 }) {
+  // Lookup: points at each PL position right now.
+  const pointsAtPosition = new Map<number, number>(
+    table.map((t) => [t.position, t.points])
+  )
+  // Lookup: a team's current points (by name — actual table doesn't ship the
+  // team_id with the prediction-tab data, but team names are unique).
+  const pointsByTeamName = new Map<string, number>(
+    table.map((t) => [t.team_name, t.points])
+  )
+
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
@@ -147,60 +167,105 @@ function PredictionTab({
         <table className="w-full text-sm">
           <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/60">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">You</th>
+              <th className="px-3 py-2 text-center font-medium">My prediction</th>
               <th className="px-3 py-2 text-left font-medium">Team</th>
-              <th className="px-3 py-2 text-left font-medium">League position</th>
-              <th className="px-3 py-2 text-right font-medium">Pts</th>
+              <th className="px-3 py-2 text-center font-medium">League position</th>
+              <th className="px-3 py-2 text-center font-medium">League points difference</th>
+              <th className="px-3 py-2 text-center font-medium">Joker</th>
+              <th className="px-3 py-2 text-center font-medium">My points</th>
             </tr>
           </thead>
           <tbody>
-            {scored.map((row) => (
-              <tr
-                key={row.team_id}
-                className={
-                  row.is_joker
-                    ? 'border-t border-zinc-100 bg-amber-50/60 dark:border-zinc-800 dark:bg-amber-500/5'
-                    : 'border-t border-zinc-100 dark:border-zinc-800'
+            {scored.map((row) => {
+              // Points gap: how far the team's actual points sit from the
+              // points held by whoever is at the predicted position right now.
+              // Positive = team is ahead of the predicted spot (over-achieving
+              // the prediction). Negative = team is behind (needs to climb).
+              // Hidden for exact hits since the gap is 0 by definition.
+              let gap: number | null = null
+              if (row.actual_position != null && row.distance != null && row.distance !== 0) {
+                const teamPts = pointsByTeamName.get(row.team_name)
+                const targetPts = pointsAtPosition.get(row.position)
+                if (teamPts != null && targetPts != null) {
+                  gap = teamPts - targetPts
                 }
-              >
-                <td className="px-3 py-2 tabular-nums text-zinc-600 dark:text-zinc-400">
-                  {row.position}
-                </td>
-                <td className="px-3 py-2">
-                  <Link
-                    href={`/team/${slugifyTeam(row.team_name)}`}
-                    className="inline-flex items-center gap-2 font-medium hover:underline"
-                  >
-                    <TeamBadge teamName={row.team_name} size={20} />
-                    {row.team_name}
-                  </Link>
-                  {row.is_joker && (
-                    <span className="ml-2 inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
-                      Joker × 2
+              }
+              return (
+                <tr
+                  key={row.team_id}
+                  className={
+                    row.is_joker
+                      ? 'border-t border-zinc-100 bg-amber-50/60 dark:border-zinc-800 dark:bg-amber-500/5'
+                      : 'border-t border-zinc-100 dark:border-zinc-800'
+                  }
+                >
+                  <td className="px-3 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400">
+                    {row.position}
+                  </td>
+                  <td className="px-3 py-2">
+                    <Link
+                      href={`/team/${slugifyTeam(row.team_name)}`}
+                      className="inline-flex items-center gap-2 font-medium hover:underline"
+                    >
+                      <TeamBadge teamName={row.team_name} size={20} />
+                      {row.team_name}
+                    </Link>
+                  </td>
+                  <td className="px-3 py-2 text-center tabular-nums text-zinc-600 dark:text-zinc-400">
+                    {row.actual_position ?? '—'}
+                  </td>
+                  <td className="px-3 py-2 text-center text-xs tabular-nums">
+                    {gap == null ? (
+                      <span className="text-zinc-300 dark:text-zinc-700">—</span>
+                    ) : (
+                      <span
+                        className={
+                          gap > 0
+                            ? 'font-medium text-sky-700 dark:text-sky-400'
+                            : 'font-medium text-amber-700 dark:text-amber-400'
+                        }
+                      >
+                        {gap > 0 ? '+' : ''}
+                        {gap} pts
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    {row.is_joker && (
+                      <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+                        Joker
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    {/*
+                      Color tier driven by base_points (distance), not the
+                      final value — so a Joker-doubled "1-off" hit still
+                      shows yellow (it's a 3pt tier × 2 = 6 pts), and an
+                      exact-hit Joker shows green at 10 pts.
+                    */}
+                    <span
+                      className={
+                        row.base_points === 5
+                          ? 'font-semibold tabular-nums text-emerald-700 dark:text-emerald-400'
+                          : row.base_points === 3
+                            ? 'font-semibold tabular-nums text-amber-700 dark:text-amber-400'
+                            : row.base_points === 1
+                              ? 'font-semibold tabular-nums text-rose-700 dark:text-rose-400'
+                              : 'tabular-nums text-zinc-400 dark:text-zinc-600'
+                      }
+                    >
+                      {row.points}
                     </span>
-                  )}
-                </td>
-                <td className="px-3 py-2 tabular-nums text-zinc-600 dark:text-zinc-400">
-                  {row.actual_position ?? '—'}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <span
-                    className={
-                      row.points > 0
-                        ? 'font-semibold tabular-nums text-emerald-700 dark:text-emerald-400'
-                        : 'tabular-nums text-zinc-400 dark:text-zinc-600'
-                    }
-                  >
-                    {row.points}
-                  </span>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              )
+            })}
             <tr className="border-t-2 border-zinc-300 bg-zinc-50 font-semibold dark:border-zinc-700 dark:bg-zinc-900/60">
-              <td colSpan={3} className="px-3 py-2 text-right uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
+              <td colSpan={5} className="px-3 py-2 text-right uppercase tracking-wide text-xs text-zinc-600 dark:text-zinc-400">
                 Total
               </td>
-              <td className="px-3 py-2 text-right text-emerald-700 dark:text-emerald-400 tabular-nums">
+              <td className="px-3 py-2 text-center text-emerald-700 dark:text-emerald-400 tabular-nums">
                 {total}
               </td>
             </tr>
@@ -406,6 +471,32 @@ function FixtureSideCell({
       <div className="mt-1 text-xs leading-snug text-zinc-500 dark:text-zinc-400">
         You predicted #{side.predicted_position ?? '—'} · league position #{side.actual_position ?? '—'}
       </div>
+      {/*
+        Three mutually exclusive states under the position line:
+        - exact hit  → green "Correct position" badge
+        - gap > 0    → blue "+N pts vs your call" (team ahead of predicted)
+        - gap < 0    → yellow "−N pts vs your call" (team behind predicted)
+      */}
+      {side.actual_position != null &&
+      side.predicted_position != null &&
+      side.actual_position === side.predicted_position ? (
+        <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+          ✓ Correct position
+        </div>
+      ) : (
+        side.points_gap != null && (
+          <div
+            className={
+              side.points_gap > 0
+                ? 'mt-0.5 text-[11px] font-medium text-sky-700 dark:text-sky-400'
+                : 'mt-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400'
+            }
+          >
+            {side.points_gap > 0 ? '+' : ''}
+            {side.points_gap} pts vs your prediction
+          </div>
+        )
+      )}
     </div>
   )
 }
@@ -416,9 +507,17 @@ function FixtureSideCell({
 
 function PLTableTab({
   table,
+  scored,
 }: {
   table: { position: number; team_name: string; points: number }[]
+  scored: ScoredPrediction[]
 }) {
+  // Lookup: team_name → ScoredPrediction so we can show how each team
+  // currently contributes to the viewing player's total.
+  const scoredByName = new Map<string, ScoredPrediction>(
+    scored.map((s) => [s.team_name, s])
+  )
+
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
@@ -426,20 +525,50 @@ function PLTableTab({
         <span>Live</span>
       </div>
       <ol className="overflow-hidden rounded-xl border border-zinc-200 bg-white text-sm dark:border-zinc-800 dark:bg-zinc-900">
-        {table.map((row) => (
-          <li
-            key={row.position}
-            className="flex items-center gap-3 border-b border-zinc-100 px-3 py-2 last:border-0 dark:border-zinc-800"
-          >
-            <span className="w-6 text-right tabular-nums text-zinc-500">{row.position}</span>
-            <TeamBadge teamName={row.team_name} size={20} />
-            <Link href={`/team/${slugifyTeam(row.team_name)}`} className="flex-1 truncate hover:underline">
-              {row.team_name}
-            </Link>
-            <span className="tabular-nums text-zinc-500">{row.points} pts</span>
-          </li>
-        ))}
+        {table.map((row) => {
+          const s = scoredByName.get(row.team_name)
+          // Color tier based on the player's base_points for this team —
+          // same palette as the prediction table for consistency.
+          const yourPtsClass =
+            s == null
+              ? 'tabular-nums text-zinc-400 dark:text-zinc-600'
+              : s.base_points === 5
+                ? 'font-semibold tabular-nums text-emerald-700 dark:text-emerald-400'
+                : s.base_points === 3
+                  ? 'font-semibold tabular-nums text-amber-700 dark:text-amber-400'
+                  : s.base_points === 1
+                    ? 'font-semibold tabular-nums text-rose-700 dark:text-rose-400'
+                    : 'tabular-nums text-zinc-400 dark:text-zinc-600'
+          return (
+            <li
+              key={row.position}
+              className="flex items-center gap-3 border-b border-zinc-100 px-3 py-2 last:border-0 dark:border-zinc-800"
+            >
+              <span className="w-6 text-right tabular-nums text-zinc-500">{row.position}</span>
+              <TeamBadge teamName={row.team_name} size={20} />
+              <Link href={`/team/${slugifyTeam(row.team_name)}`} className="flex-1 truncate hover:underline">
+                {row.team_name}
+              </Link>
+              {s?.is_joker && (
+                <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+                  Joker
+                </span>
+              )}
+              <span className="w-16 text-right tabular-nums text-zinc-500">
+                {row.points} pts
+              </span>
+              <span className={`w-16 text-right ${yourPtsClass}`}>
+                {s?.points ?? 0} pts
+              </span>
+            </li>
+          )
+        })}
       </ol>
+      <p className="mt-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+        Left column is the team&apos;s actual Premier League points. Right
+        column is the points you&apos;re currently earning from where this
+        team sits versus where you predicted them.
+      </p>
     </section>
   )
 }

@@ -64,16 +64,26 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
           {detail.player.display_name}
         </h1>
 
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Rank" value={`#${detail.rank}`} />
-          <Stat label="Live score" value={String(detail.total)} accent />
-          <Stat label="Exact hits" value={`${detail.exact_hits} / 20`} />
-          <Stat
-            label="Joker"
-            value={detail.joker_team_name ?? '—'}
-            sub={`${detail.joker_points} pts`}
-          />
-        </div>
+        {(() => {
+          const teamsScoring = detail.scored.filter((s) => s.points > 0).length
+          const teamsScoringPct = Math.round((teamsScoring / 20) * 100)
+          return (
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Stat label="Rank" value={`#${detail.rank}`} />
+              <Stat label="Live score" value={String(detail.total)} accent />
+              <Stat
+                label="Teams scoring"
+                value={`${teamsScoring} / 20`}
+                sub={`${teamsScoringPct}%`}
+              />
+              <Stat
+                label="Joker"
+                value={detail.joker_team_name ?? '—'}
+                sub={`${detail.joker_points} pts`}
+              />
+            </div>
+          )
+        })()}
 
         <div className="mt-4 max-w-xs">
           <CompareSelector fromCode={detail.player.invite_code} players={allPlayers} />
@@ -413,7 +423,7 @@ function Stat({
         {value}
       </div>
       {sub && (
-        <div className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">
+        <div className="mt-0.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300">
           {sub}
         </div>
       )}

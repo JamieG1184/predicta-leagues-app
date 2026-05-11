@@ -311,16 +311,21 @@ function HitPill({
   tone: 'exact' | 'three' | 'one'
   count: number
 }) {
+  // Simplified pill: just the count, color-coded by tier.
+  // Tooltip still names the tier so hover-curious players can decode.
   const label = tone === 'exact' ? '5pt' : tone === 'three' ? '3pt' : '1pt'
   const cls =
     tone === 'exact'
-      ? 'inline-flex items-center gap-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
+      ? 'inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[11px] font-semibold tabular-nums text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
       : tone === 'three'
-        ? 'inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
-        : 'inline-flex items-center gap-1 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-rose-800 dark:bg-rose-500/15 dark:text-rose-300'
+        ? 'inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-amber-100 px-1.5 text-[11px] font-semibold tabular-nums text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
+        : 'inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-rose-100 px-1.5 text-[11px] font-semibold tabular-nums text-rose-800 dark:bg-rose-500/15 dark:text-rose-300'
   return (
-    <span className={cls} title={`${count} pick${count === 1 ? '' : 's'} worth ${label} each`}>
-      {label} {count}
+    <span
+      className={cls}
+      title={`${count} pick${count === 1 ? '' : 's'} worth ${label} each`}
+    >
+      {count}
     </span>
   )
 }
