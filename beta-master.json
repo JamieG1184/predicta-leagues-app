@@ -1,0 +1,3152 @@
+[
+  {
+    "name": "Scott Ferguson",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": true
+      },
+      {
+        "position": 20,
+        "team": "Sunderland",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Callum Ferguson",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Ryan Wilson",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": true
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Dave Uttley",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 4,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Sunderland",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Clayton Taylor",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": true
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Sam Baker",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Sunderland",
+        "is_joker": true
+      },
+      {
+        "position": 12,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "John Pedder",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": true
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Andy Swift",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": true
+      }
+    ]
+  },
+  {
+    "name": "Guy Woodcock",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Sunderland",
+        "is_joker": true
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Rich Bennett",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Matt Spencer",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": true
+      }
+    ]
+  },
+  {
+    "name": "Ted Hughes",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Sunderland",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "John Menendez",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Tecwyn Roberts",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Sunderland",
+        "is_joker": true
+      }
+    ]
+  },
+  {
+    "name": "Ian Ruthven",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Sunderland",
+        "is_joker": true
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Colin McGuire",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": true
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Ben Ponsford",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Patrick Leach",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Tom Young",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Sam H",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": true
+      }
+    ]
+  },
+  {
+    "name": "Billy T",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": true
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Sunderland",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Dave Holton",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "West Ham United",
+        "is_joker": true
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Jamie Gillson",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": true
+      }
+    ]
+  },
+  {
+    "name": "Rachael Hill",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Leeds United",
+        "is_joker": true
+      },
+      {
+        "position": 18,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Batu Damlica",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Chelsea",
+        "is_joker": true
+      },
+      {
+        "position": 6,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Izza Zdrodowska",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Newcastle United",
+        "is_joker": true
+      },
+      {
+        "position": 5,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Burnley",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Tom Lau",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Liverpool",
+        "is_joker": true
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Leeds United",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Rebecca McCairns",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Everton",
+        "is_joker": true
+      },
+      {
+        "position": 5,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Leicester City",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Southampton",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Brentford",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Shaun Canning",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": false
+      },
+      {
+        "position": 5,
+        "team": "Aston Villa",
+        "is_joker": true
+      },
+      {
+        "position": 6,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Leeds United",
+        "is_joker": false
+      }
+    ]
+  },
+  {
+    "name": "Duncan Milroy",
+    "predictions": [
+      {
+        "position": 1,
+        "team": "Arsenal",
+        "is_joker": false
+      },
+      {
+        "position": 2,
+        "team": "Manchester City",
+        "is_joker": false
+      },
+      {
+        "position": 3,
+        "team": "Liverpool",
+        "is_joker": false
+      },
+      {
+        "position": 4,
+        "team": "Chelsea",
+        "is_joker": true
+      },
+      {
+        "position": 5,
+        "team": "Newcastle United",
+        "is_joker": false
+      },
+      {
+        "position": 6,
+        "team": "Aston Villa",
+        "is_joker": false
+      },
+      {
+        "position": 7,
+        "team": "Tottenham Hotspur",
+        "is_joker": false
+      },
+      {
+        "position": 8,
+        "team": "Bournemouth",
+        "is_joker": false
+      },
+      {
+        "position": 9,
+        "team": "Manchester United",
+        "is_joker": false
+      },
+      {
+        "position": 10,
+        "team": "Brighton & Hove Albion",
+        "is_joker": false
+      },
+      {
+        "position": 11,
+        "team": "Everton",
+        "is_joker": false
+      },
+      {
+        "position": 12,
+        "team": "Crystal Palace",
+        "is_joker": false
+      },
+      {
+        "position": 13,
+        "team": "Fulham",
+        "is_joker": false
+      },
+      {
+        "position": 14,
+        "team": "Nottingham Forest",
+        "is_joker": false
+      },
+      {
+        "position": 15,
+        "team": "Brentford",
+        "is_joker": false
+      },
+      {
+        "position": 16,
+        "team": "West Ham United",
+        "is_joker": false
+      },
+      {
+        "position": 17,
+        "team": "Sunderland",
+        "is_joker": false
+      },
+      {
+        "position": 18,
+        "team": "Leeds United",
+        "is_joker": false
+      },
+      {
+        "position": 19,
+        "team": "Burnley",
+        "is_joker": false
+      },
+      {
+        "position": 20,
+        "team": "Wolverhampton Wanderers",
+        "is_joker": false
+      }
+    ]
+  }
+]
