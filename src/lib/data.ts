@@ -1740,6 +1740,17 @@ export type PlayerMovement = {
   evaluable_count: number
   total_actual_delta: number
   narrative: string[]
+  // Teams from the player's prediction list that played in the window
+  // covered by this update. Lets us tell the player WHICH teams shifted
+  // their score, not just by how much overall. Sorted by current_points
+  // descending so the biggest contributors appear first.
+  score_contributors: {
+    team_name: string
+    current_points: number
+    is_joker: boolean
+    result: 'won' | 'lost' | 'drew' | 'unknown'
+    opponent_name: string
+  }[]
 }
 
 export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovement> {
@@ -1760,6 +1771,7 @@ export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovem
     evaluable_count: 0,
     total_actual_delta: 0,
     narrative: [],
+    score_contributors: [],
   }
 
   const season = await getCurrentSeason()
@@ -1959,6 +1971,51 @@ export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovem
     )
   }
 
+  // Per-team contributors: for each fixture in the window, list both sides
+  // with the player's CURRENT points from that team, joker flag, outcome
+  // (from that team's perspective), and who they played. Deduped if a team
+  // somehow appears twice. Sorted by current_points descending so the
+  // biggest contributors surface first.
+  const scoreContributors: PlayerMovement['score_contributors'] = []
+  const seenTeamIds = new Set<number>()
+  for (const f of fixtures ?? []) {
+    if (f.home_team_id == null || f.away_team_id == null) continue
+    const homeName = teamsById.get(f.home_team_id) ?? 'Unknown'
+    const awayName = teamsById.get(f.away_team_id) ?? 'Unknown'
+    const winner = inferFixtureWinner(homeName, awayName, f.result_info)
+
+    for (const side of ['home', 'away'] as const) {
+      const teamId = side === 'home' ? f.home_team_id : f.away_team_id
+      if (seenTeamIds.has(teamId)) continue
+      seenTeamIds.add(teamId)
+
+      const teamName = teamsById.get(teamId) ?? 'Unknown'
+      const opponentName = side === 'home' ? awayName : homeName
+      const pred = myPredByTeamId.get(teamId)
+      const actualPos = actualByTeamId.get(teamId) ?? null
+      let currentPoints = 0
+      if (pred && actualPos != null) {
+        const distance = Math.abs(pred.position - actualPos)
+        const base = distance === 0 ? 5 : distance === 1 ? 3 : distance === 2 ? 1 : 0
+        currentPoints = base * (pred.is_joker ? 2 : 1)
+      }
+
+      let result: 'won' | 'lost' | 'drew' | 'unknown' = 'unknown'
+      if (winner === 'draw') result = 'drew'
+      else if (winner === side) result = 'won'
+      else if (winner !== 'unknown') result = 'lost'
+
+      scoreContributors.push({
+        team_name: teamName,
+        current_points: currentPoints,
+        is_joker: !!pred?.is_joker,
+        result,
+        opponent_name: opponentName,
+      })
+    }
+  }
+  scoreContributors.sort((a, b) => b.current_points - a.current_points)
+
   return {
     has_data: true,
     score_change: scoreChange,
@@ -1976,6 +2033,7 @@ export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovem
     evaluable_count: evaluableCount,
     total_actual_delta: totalActualDelta,
     narrative,
+    score_contributors: scoreContributors,
   }
 }
 
