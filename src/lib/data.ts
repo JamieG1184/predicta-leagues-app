@@ -1953,29 +1953,6 @@ export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovem
     )
   }
 
-  if (jokerTeamName && jokerPred) {
-    const actualPos = actualByTeamId.get(jokerPred.team_id) ?? null
-    if (actualPos != null) {
-      const distance = Math.abs(jokerPred.position - actualPos)
-      const directionalNote =
-        distance === 0
-          ? `currently at exact-position match (5 base, doubled to 10).`
-          : distance === 1
-          ? `currently within ±1 of your prediction (3 base, doubled to 6).`
-          : distance === 2
-          ? `currently within ±2 of your prediction (1 base, doubled to 2).`
-          : `currently more than 2 positions from your prediction (no Joker yield).`
-      narrative.push(`Joker review: ${jokerTeamName} is ${directionalNote}`)
-    }
-  }
-
-  if (successRate !== null && evaluableCount >= 2) {
-    const pct = Math.round(successRate * 100)
-    narrative.push(
-      `Result-needed accuracy: ${successCount} of ${evaluableCount} fixtures (${pct}%) returned the outcome that would have improved your score.`
-    )
-  }
-
   // Reconstruct pre-window PL standings by REVERSING every fixture in this
   // window — for each, subtract the points the winner gained (3 for a
   // win, 1 each on a draw). Re-rank by adjusted points to recover the

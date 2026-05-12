@@ -214,7 +214,7 @@ function RecentActivity({ movement }: { movement: PlayerMovement }) {
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-emerald-700/70 dark:text-emerald-300/70">
               Score change
@@ -243,19 +243,6 @@ function RecentActivity({ movement }: { movement: PlayerMovement }) {
             </div>
             <div className="text-xs text-emerald-800/70 dark:text-emerald-300/60">
               #{movement.rank_before ?? '—'} → #{movement.rank_after}
-            </div>
-          </div>
-          <div>
-            <div className="text-[10px] uppercase tracking-widest text-emerald-700/70 dark:text-emerald-300/70">
-              Result-needed accuracy
-            </div>
-            <div className="mt-1 text-lg font-semibold tabular-nums">
-              {movement.success_rate == null
-                ? '—'
-                : `${Math.round(movement.success_rate * 100)}%`}
-            </div>
-            <div className="text-xs text-emerald-800/70 dark:text-emerald-300/60">
-              {movement.success_count} / {movement.evaluable_count} fixtures
             </div>
           </div>
           <div>
