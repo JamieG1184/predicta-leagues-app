@@ -489,6 +489,7 @@ export async function GET() {
           live_away_score: null,
           live_minute: null,
           live_period: null,
+          state_id: 5, // mark as Full Time since it's gone from the inplay feed
         })
         .in(
           'sportmonks_id',
@@ -496,6 +497,28 @@ export async function GET() {
         )
       liveScoresChanged = true
       ftTransitionThisPoll = true
+
+      // For each freshly-FT fixture, fetch its details to capture
+      // result_info ("Liverpool won 2-1"). The inplay endpoint drops the
+      // fixture the moment it goes FT, so we have to ask for it by ID.
+      // Non-critical: a Sportmonks blip here shouldn't break the poll, so
+      // we wrap each call in its own try/catch.
+      for (const s of stale) {
+        try {
+          const detail = await sportmonks(`/fixtures/${s.sportmonks_id}`)
+          const info = detail?.data?.result_info ?? null
+          if (info) {
+            await supabaseServer
+              .from('fixtures')
+              .update({ result_info: info })
+              .eq('sportmonks_id', s.sportmonks_id)
+          }
+        } catch {
+          // Skip silently — next /api/live poll will try again next time
+          // a fixture transitions, and the manual sportmonks:sync-fixtures
+          // script remains the long-tail backup.
+        }
+      }
     }
 
     // 2. Sync standings ONLY when at least one fixture has just finished.
