@@ -279,26 +279,15 @@ function RecentActivity({ movement }: { movement: PlayerMovement }) {
         {movement.score_contributors.length > 0 && (
           <div className="mt-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-700/70 dark:text-emerald-300/70">
-              Teams that played this period
+              Where your {movement.score_change > 0 ? '+' : ''}
+              {movement.score_change} points came from
             </p>
             <ul className="mt-2 space-y-1 text-sm">
               {movement.score_contributors.map((c, i) => {
-                const resultBadge =
-                  c.result === 'won'
-                    ? { label: 'WON', cls: 'bg-emerald-200 text-emerald-800 dark:bg-emerald-500/30 dark:text-emerald-200' }
-                    : c.result === 'lost'
-                      ? { label: 'LOST', cls: 'bg-rose-200 text-rose-800 dark:bg-rose-500/30 dark:text-rose-200' }
-                      : c.result === 'drew'
-                        ? { label: 'DREW', cls: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700/50 dark:text-zinc-200' }
-                        : { label: 'TBC', cls: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400' }
-                const ptsCls =
-                  c.current_points >= 5
-                    ? 'text-emerald-700 dark:text-emerald-400'
-                    : c.current_points >= 3
-                      ? 'text-amber-700 dark:text-amber-400'
-                      : c.current_points >= 1
-                        ? 'text-rose-700 dark:text-rose-400'
-                        : 'text-zinc-400 dark:text-zinc-600'
+                const deltaCls =
+                  c.delta > 0
+                    ? 'font-semibold text-emerald-700 dark:text-emerald-400'
+                    : 'font-semibold text-rose-700 dark:text-rose-400'
                 return (
                   <li
                     key={i}
@@ -310,25 +299,23 @@ function RecentActivity({ movement }: { movement: PlayerMovement }) {
                         J
                       </span>
                     )}
-                    <span
-                      className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${resultBadge.cls}`}
-                    >
-                      {resultBadge.label}
-                    </span>
                     <span className="text-xs text-zinc-500 dark:text-zinc-500">
-                      vs {c.opponent_name}
+                      #{c.position_before} → #{c.position_after}
+                      {' · '}
+                      {c.points_before} → {c.points_after} pts
                     </span>
-                    <span className={`ml-auto font-semibold tabular-nums ${ptsCls}`}>
-                      {c.current_points} pts
+                    <span className={`ml-auto tabular-nums ${deltaCls}`}>
+                      {c.delta > 0 ? '▲ +' : '▼ '}
+                      {c.delta} pts
                     </span>
                   </li>
                 )
               })}
             </ul>
             <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-500">
-              Points shown are this team&apos;s current contribution to your
-              score. Teams that didn&apos;t play this period aren&apos;t
-              listed but still count toward your total.
+              Per-team breakdown: how each team&apos;s actual league position
+              moved this period and the change to your points from each.
+              Only teams whose contribution changed are listed.
             </p>
           </div>
         )}

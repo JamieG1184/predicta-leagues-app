@@ -1740,16 +1740,21 @@ export type PlayerMovement = {
   evaluable_count: number
   total_actual_delta: number
   narrative: string[]
-  // Teams from the player's prediction list that played in the window
-  // covered by this update. Lets us tell the player WHICH teams shifted
-  // their score, not just by how much overall. Sorted by current_points
-  // descending so the biggest contributors appear first.
+  // Per-team breakdown of the score change. Computed by reversing each
+  // fixture's PL points award (subtract 3 from winner, 1 each on a draw),
+  // re-ranking to reconstruct pre-window positions, then scoring the
+  // player against both pre- and post-window standings. Result: exact
+  // attribution down to each team that moved enough to change the
+  // player's points. Sums to the total score_change. Only teams whose
+  // contribution changed (delta != 0) are listed, sorted by delta desc.
   score_contributors: {
     team_name: string
-    current_points: number
+    delta: number
+    points_before: number
+    points_after: number
+    position_before: number
+    position_after: number
     is_joker: boolean
-    result: 'won' | 'lost' | 'drew' | 'unknown'
-    opponent_name: string
   }[]
 }
 
@@ -1971,50 +1976,88 @@ export async function getPlayerMovement(inviteCode: string): Promise<PlayerMovem
     )
   }
 
-  // Per-team contributors: for each fixture in the window, list both sides
-  // with the player's CURRENT points from that team, joker flag, outcome
-  // (from that team's perspective), and who they played. Deduped if a team
-  // somehow appears twice. Sorted by current_points descending so the
-  // biggest contributors surface first.
-  const scoreContributors: PlayerMovement['score_contributors'] = []
-  const seenTeamIds = new Set<number>()
+  // Reconstruct pre-window PL standings by REVERSING every fixture in this
+  // window — for each, subtract the points the winner gained (3 for a
+  // win, 1 each on a draw). Re-rank by adjusted points to recover the
+  // positions every team held before this period. Compare each predicted
+  // team's pre vs post points contribution and sum the deltas — they
+  // total to score_change exactly (within tiebreaker rounding), so the
+  // user gets a true per-team attribution of where their score moved.
+  const pointsByTeamAfter = new Map(standings.map((s) => [s.team_id, s.points]))
+  const pointsByTeamBefore = new Map(pointsByTeamAfter)
   for (const f of fixtures ?? []) {
     if (f.home_team_id == null || f.away_team_id == null) continue
-    const homeName = teamsById.get(f.home_team_id) ?? 'Unknown'
-    const awayName = teamsById.get(f.away_team_id) ?? 'Unknown'
+    const homeName = teamsById.get(f.home_team_id) ?? null
+    const awayName = teamsById.get(f.away_team_id) ?? null
     const winner = inferFixtureWinner(homeName, awayName, f.result_info)
-
-    for (const side of ['home', 'away'] as const) {
-      const teamId = side === 'home' ? f.home_team_id : f.away_team_id
-      if (seenTeamIds.has(teamId)) continue
-      seenTeamIds.add(teamId)
-
-      const teamName = teamsById.get(teamId) ?? 'Unknown'
-      const opponentName = side === 'home' ? awayName : homeName
-      const pred = myPredByTeamId.get(teamId)
-      const actualPos = actualByTeamId.get(teamId) ?? null
-      let currentPoints = 0
-      if (pred && actualPos != null) {
-        const distance = Math.abs(pred.position - actualPos)
-        const base = distance === 0 ? 5 : distance === 1 ? 3 : distance === 2 ? 1 : 0
-        currentPoints = base * (pred.is_joker ? 2 : 1)
-      }
-
-      let result: 'won' | 'lost' | 'drew' | 'unknown' = 'unknown'
-      if (winner === 'draw') result = 'drew'
-      else if (winner === side) result = 'won'
-      else if (winner !== 'unknown') result = 'lost'
-
-      scoreContributors.push({
-        team_name: teamName,
-        current_points: currentPoints,
-        is_joker: !!pred?.is_joker,
-        result,
-        opponent_name: opponentName,
-      })
+    if (winner === 'home') {
+      pointsByTeamBefore.set(
+        f.home_team_id,
+        (pointsByTeamBefore.get(f.home_team_id) ?? 0) - 3
+      )
+    } else if (winner === 'away') {
+      pointsByTeamBefore.set(
+        f.away_team_id,
+        (pointsByTeamBefore.get(f.away_team_id) ?? 0) - 3
+      )
+    } else if (winner === 'draw') {
+      pointsByTeamBefore.set(
+        f.home_team_id,
+        (pointsByTeamBefore.get(f.home_team_id) ?? 0) - 1
+      )
+      pointsByTeamBefore.set(
+        f.away_team_id,
+        (pointsByTeamBefore.get(f.away_team_id) ?? 0) - 1
+      )
     }
+    // For 'unknown' outcomes (no result_info yet) we can't reverse the
+    // points, so the comparison may be slightly off for those fixtures.
   }
-  scoreContributors.sort((a, b) => b.current_points - a.current_points)
+
+  function rankByPoints(
+    pts: Map<number, number>,
+    tiebreakOriginalPos: Map<number, number>
+  ): Map<number, number> {
+    const sorted = [...pts.entries()].sort(
+      (a, b) =>
+        b[1] - a[1] ||
+        (tiebreakOriginalPos.get(a[0]) ?? 99) -
+          (tiebreakOriginalPos.get(b[0]) ?? 99)
+    )
+    const positions = new Map<number, number>()
+    sorted.forEach(([teamId], i) => positions.set(teamId, i + 1))
+    return positions
+  }
+
+  // Tiebreaker uses the post-window position so swaps of equal-point
+  // teams don't introduce phantom ranking changes.
+  const positionsAfter = new Map(standings.map((s) => [s.team_id, s.position]))
+  const positionsBefore = rankByPoints(pointsByTeamBefore, positionsAfter)
+
+  const scoreContributors: PlayerMovement['score_contributors'] = []
+  for (const pred of myPreds) {
+    const before = positionsBefore.get(pred.team_id)
+    const after = positionsAfter.get(pred.team_id)
+    if (before == null || after == null) continue
+    const baseFor = (distance: number) =>
+      distance === 0 ? 5 : distance === 1 ? 3 : distance === 2 ? 1 : 0
+    const ptsBefore =
+      baseFor(Math.abs(pred.position - before)) * (pred.is_joker ? 2 : 1)
+    const ptsAfter =
+      baseFor(Math.abs(pred.position - after)) * (pred.is_joker ? 2 : 1)
+    const delta = ptsAfter - ptsBefore
+    if (delta === 0) continue
+    scoreContributors.push({
+      team_name: teamsById.get(pred.team_id) ?? 'Unknown',
+      delta,
+      points_before: ptsBefore,
+      points_after: ptsAfter,
+      position_before: before,
+      position_after: after,
+      is_joker: pred.is_joker,
+    })
+  }
+  scoreContributors.sort((a, b) => b.delta - a.delta)
 
   return {
     has_data: true,
