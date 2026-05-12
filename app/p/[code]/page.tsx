@@ -99,6 +99,7 @@ export default async function PlayerPage({ params }: { params: Promise<Params> }
         total={detail.total}
         fixtures={fixtures}
         current_table={detail.current_table}
+        score_contributors={movement.score_contributors}
         fixturesAvailable={fixtures.length > 0}
         scenario_player_id={detail.player.id}
         scenario_fixtures={scenario?.fixtures ?? []}

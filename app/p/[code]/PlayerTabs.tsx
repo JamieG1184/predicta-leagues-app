@@ -48,11 +48,25 @@ function formatPeriod(code: string | null | undefined): string {
 
 type Tab = 'prediction' | 'original' | 'fixtures' | 'pl_table' | 'scenario'
 
+// Per-team delta in the player's score since the last update window
+// (computed by getPlayerMovement). Drives the POINTS GAINED column on the
+// prediction table — keyed by team_name for lookup.
+type ScoreContributor = {
+  team_name: string
+  delta: number
+  points_before: number
+  points_after: number
+  position_before: number
+  position_after: number
+  is_joker: boolean
+}
+
 type Props = {
   scored: ScoredPrediction[]
   total: number
   fixtures: FixtureLookAhead[]
   current_table: { position: number; team_name: string; points: number }[]
+  score_contributors: ScoreContributor[]
   fixturesAvailable: boolean
   scenario_player_id: number
   scenario_fixtures: ScenarioFixture[]
@@ -110,6 +124,7 @@ export function PlayerTabs(props: Props) {
           scored={props.scored}
           total={props.total}
           table={props.current_table}
+          score_contributors={props.score_contributors}
         />
       )}
       {tab === 'original' && showOriginalTab && (
@@ -171,10 +186,12 @@ function PredictionTab({
   scored,
   total,
   table,
+  score_contributors,
 }: {
   scored: ScoredPrediction[]
   total: number
   table: { position: number; team_name: string; points: number }[]
+  score_contributors: ScoreContributor[]
 }) {
   // Lookup: points at each PL position right now.
   const pointsAtPosition = new Map<number, number>(
@@ -184,6 +201,12 @@ function PredictionTab({
   // team_id with the prediction-tab data, but team names are unique).
   const pointsByTeamName = new Map<string, number>(
     table.map((t) => [t.team_name, t.points])
+  )
+  // Lookup: per-team delta since the last update for the POINTS GAINED
+  // column. Only teams whose contribution changed appear in this map;
+  // others render as a muted em dash.
+  const deltaByTeamName = new Map<string, number>(
+    score_contributors.map((c) => [c.team_name, c.delta])
   )
 
   return (
@@ -196,7 +219,7 @@ function PredictionTab({
         Swipe sideways to see all columns →
       </p>
       <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <table className="w-full min-w-[560px] text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900/60">
             <tr>
               <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
@@ -215,6 +238,12 @@ function PredictionTab({
                 <div className="flex flex-col leading-tight">
                   <span>My</span>
                   <span>points</span>
+                </div>
+              </th>
+              <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
+                <div className="flex flex-col leading-tight">
+                  <span>Points</span>
+                  <span>gained</span>
                 </div>
               </th>
               <th className="px-2 py-2 text-left align-bottom font-medium sm:px-3">
@@ -298,6 +327,26 @@ function PredictionTab({
                       {row.points}
                     </span>
                   </td>
+                  <td className="px-2 py-2 tabular-nums sm:px-3">
+                    {(() => {
+                      const d = deltaByTeamName.get(row.team_name)
+                      if (d == null || d === 0) {
+                        return <span className="text-zinc-300 dark:text-zinc-700">—</span>
+                      }
+                      return (
+                        <span
+                          className={
+                            d > 0
+                              ? 'font-semibold text-emerald-700 dark:text-emerald-400'
+                              : 'font-semibold text-rose-700 dark:text-rose-400'
+                          }
+                        >
+                          {d > 0 ? '▲ +' : '▼ '}
+                          {d}
+                        </span>
+                      )
+                    })()}
+                  </td>
                   <td className="px-2 py-2 tabular-nums text-zinc-600 dark:text-zinc-400 sm:px-3">
                     {row.actual_position ?? '—'}
                   </td>
@@ -327,7 +376,7 @@ function PredictionTab({
               <td className="px-3 py-2 text-emerald-700 dark:text-emerald-400 tabular-nums">
                 {total}
               </td>
-              <td colSpan={2} />
+              <td colSpan={3} />
             </tr>
           </tbody>
         </table>
