@@ -269,7 +269,15 @@ export async function GET() {
         case 9:
           return 'PEN'
         case 22:
-          return 'STOPPAGE'
+          // Sportmonks' exact semantic for state_id 22 isn't documented
+          // reliably. Observed on 13 May 2026 during the 2nd half of a
+          // live PL match — previously mapped to 'STOPPAGE' which
+          // displayed as "Stoppage time" and confused users when the
+          // match was clearly mid-2H play. PL matches don't go to extra
+          // time or penalties, so any in-play state_id 22 we see in
+          // practice is almost certainly a 2H variant. Map to '2H' as
+          // the safer label until a proper Sportmonks audit is done.
+          return '2H'
         default:
           return null
       }

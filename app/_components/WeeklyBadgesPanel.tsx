@@ -20,7 +20,7 @@ export async function WeeklyBadgesPanel() {
   return (
     <section className="mb-10">
       <div className="mb-3 flex items-baseline justify-between text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-500">
-        <span>Last week's awards</span>
+        <span>Recent awards</span>
         <span>{weekLabel}</span>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

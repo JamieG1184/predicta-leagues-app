@@ -49,13 +49,15 @@ async function main() {
     process.exit(1)
   }
 
-  // 2. Get the two most recent snapshot batches
+  // 2. Get enough snapshot history to find a roughly-week-old "previous"
+  //    batch even if scores:calculate has been running daily. With 30
+  //    players per batch, 1200 rows ≈ 40 batches ≈ ~6 weeks of daily snaps.
   const { data: rows } = await supabase
     .from('score_snapshots')
     .select('player_id, live_score, snapshot_at')
     .eq('season_id', season.id)
     .order('snapshot_at', { ascending: false })
-    .limit(120)
+    .limit(1200)
 
   if (!rows || rows.length === 0) {
     console.error('No score snapshots yet. Run scores:calculate first.')
@@ -69,10 +71,34 @@ async function main() {
   }
   const sortedTimes = [...byTime.keys()].sort().reverse()
   const currentTime = sortedTimes[0]
-  const previousTime = sortedTimes[1]
+
+  // For a TRULY weekly award we need "previous" to be ~7 days before
+  // "current". If scores:calculate has been run multiple times per day,
+  // the second-most-recent snapshot is only hours away — that produces
+  // a "daily" comparison, not weekly. So: walk back through snapshots
+  // and pick the first one that is at least MIN_GAP_HOURS older.
+  const MIN_GAP_HOURS = 6 * 24 // 6 days — flex of 1 day around the weekly cadence
+  const currentMs = new Date(currentTime).getTime()
+  let previousTime = null
+  for (let i = 1; i < sortedTimes.length; i++) {
+    const candidateMs = new Date(sortedTimes[i]).getTime()
+    if ((currentMs - candidateMs) / 36e5 >= MIN_GAP_HOURS) {
+      previousTime = sortedTimes[i]
+      break
+    }
+  }
   if (!previousTime) {
     console.error(
-      'Only one snapshot exists. Take a second snapshot ~7 days later before awarding badges.'
+      `No snapshot at least ${MIN_GAP_HOURS / 24} days older than the most recent one was found.`
+    )
+    console.error(
+      `Latest snapshot: ${currentTime}`
+    )
+    console.error(
+      `Oldest snapshot considered: ${sortedTimes[sortedTimes.length - 1] ?? '(none)'}`
+    )
+    console.error(
+      `Take a fresh scores:calculate snapshot ~7 days from now and re-run badges:award.`
     )
     process.exit(1)
   }
@@ -121,11 +147,19 @@ async function main() {
   const lowestWeeklyScore = sortedByScoreDelta[sortedByScoreDelta.length - 1]
 
   // 6. Insert into weekly_badges
+  //    week_ending keeps the Sunday-anchored date for the unique constraint
+  //    + chronological ordering. week_label shows the ACTUAL period of
+  //    performance — the date range between the two snapshots we compared.
   const weekEnding = lastSundayISO()
-  const weekLabel = new Date(weekEnding).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-  })
+  const fmtDate = (iso) =>
+    new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+    })
+  const periodStart = fmtDate(previousTime)
+  const periodEnd = fmtDate(currentTime)
+  const weekLabel =
+    periodStart === periodEnd ? periodStart : `${periodStart} – ${periodEnd}`
 
   const awards = [
     {
@@ -175,7 +209,7 @@ async function main() {
   const rowsToInsert = awards.map((a) => ({
     season_id: season.id,
     week_ending: weekEnding,
-    week_label: `Week ending ${weekLabel}`,
+    week_label: weekLabel,
     badge_type: a.badge_type,
     player_id: a.player_id,
     value: a.value,
