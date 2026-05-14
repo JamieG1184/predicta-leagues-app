@@ -96,11 +96,22 @@ export function LivePoller() {
           json.last_synced_at !== lastDispatchedHighlightKeyRef.current
         ) {
           lastDispatchedHighlightKeyRef.current = json.last_synced_at
+          // eslint-disable-next-line no-console
+          console.log('[LivePoller] dispatching predicta-highlight', {
+            count: json.highlights.length,
+            highlights: json.highlights,
+            last_synced_at: json.last_synced_at,
+          })
           window.dispatchEvent(
             new CustomEvent<HighlightEventDetail>(HIGHLIGHT_EVENT_NAME, {
               detail: json.highlights,
             })
           )
+        } else if (json.highlights && json.highlights.length > 0) {
+          // eslint-disable-next-line no-console
+          console.log('[LivePoller] highlights present but skipped (dedup)', {
+            last_synced_at: json.last_synced_at,
+          })
         }
         if (json.has_updates) {
           router.refresh()

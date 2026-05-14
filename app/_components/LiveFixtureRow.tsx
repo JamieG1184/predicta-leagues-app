@@ -14,7 +14,7 @@ import {
   type HighlightEventDetail,
 } from './LivePoller'
 
-const HIGHLIGHT_FLASH_MS = 3000
+const HIGHLIGHT_FLASH_MS = 5000
 
 type Props = {
   fixture_id: number
@@ -75,12 +75,28 @@ export function LiveFixtureRow({
   // been refreshed via router.refresh().
   const [activeFlash, setActiveFlash] = useState<Highlight | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Tracks the previous live scores so we can detect a goal CLIENT-SIDE
+  // when the score prop increments. This is more robust than relying solely
+  // on the server-dispatched predicta-highlight event chain (which has more
+  // failure modes: server cache, network, event dispatch timing, listener
+  // attachment).
+  const prevScoreRef = useRef<{ home: number | null; away: number | null } | null>(null)
 
+  // Listener for server-dispatched highlights (penalties, red cards,
+  // goal-disallowed/VAR). GOAL events from the server are skipped here
+  // because we detect goals locally below via the score-delta effect —
+  // that path is more reliable and avoids any risk of double-firing.
   useEffect(() => {
     function onHighlight(e: Event) {
       const detail = (e as CustomEvent<HighlightEventDetail>).detail ?? []
       const match = detail.find((h) => h.fixture_id === fixture_id)
       if (!match) return
+      if (match.type === 'goal') return // handled client-side
+      // eslint-disable-next-line no-console
+      console.log('[LiveFixtureRow] non-goal highlight received', {
+        fixture_id,
+        type: match.type,
+      })
       setActiveFlash(match)
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => setActiveFlash(null), HIGHLIGHT_FLASH_MS)
@@ -91,6 +107,36 @@ export function LiveFixtureRow({
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [fixture_id])
+
+  // Client-side GOAL detection: whenever the score props bump UP relative
+  // to what we last saw, flash the banner. The first time we see a fixture
+  // (prevScoreRef is null) we just record the score and don't flash —
+  // otherwise refreshing the page mid-match would replay every past goal.
+  useEffect(() => {
+    const prev = prevScoreRef.current
+    prevScoreRef.current = { home: live_home_score, away: live_away_score }
+    if (!prev) return // first render — just baseline
+    if (prev.home == null || prev.away == null) return
+    if (live_home_score == null || live_away_score == null) return
+    const homeWentUp = live_home_score > prev.home
+    const awayWentUp = live_away_score > prev.away
+    if (!homeWentUp && !awayWentUp) return
+    // eslint-disable-next-line no-console
+    console.log('[LiveFixtureRow] score-delta goal detected', {
+      fixture_id,
+      prev,
+      new: { home: live_home_score, away: live_away_score },
+    })
+    setActiveFlash({
+      fixture_id,
+      type: 'goal',
+      description: `${home_team_name} vs ${away_team_name} · ${live_home_score}–${live_away_score}`,
+      home_score: live_home_score,
+      away_score: live_away_score,
+    })
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setActiveFlash(null), HIGHLIGHT_FLASH_MS)
+  }, [live_home_score, live_away_score, fixture_id, home_team_name, away_team_name])
 
   const hasScore = live_home_score != null && live_away_score != null
 
